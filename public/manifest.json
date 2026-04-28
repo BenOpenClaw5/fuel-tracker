@@ -1,0 +1,49 @@
+{
+  "name": "FUEL — Nutrition Tracking",
+  "short_name": "FUEL",
+  "description": "Editorial nutrition tracking. Macros, micros, and signal you can read.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF7F2",
+  "theme_color": "#FAF7F2",
+  "categories": ["health", "lifestyle", "food", "fitness"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan barcode",
+      "short_name": "Scan",
+      "url": "/scan"
+    },
+    {
+      "name": "Add food",
+      "short_name": "Add",
+      "url": "/add"
+    },
+    {
+      "name": "Today",
+      "short_name": "Today",
+      "url": "/"
+    }
+  ]
+}
