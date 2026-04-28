@@ -39,7 +39,7 @@ export function MealCard({
     <section className="card overflow-hidden">
       <header className="px-4 pt-4 pb-3 flex items-center justify-between">
         <div>
-          <div className="display-md">{MEAL_LABEL[meal]}</div>
+          <h2 className="display-md">{MEAL_LABEL[meal]}</h2>
           <div className="label mt-0.5">{MEAL_TIME[meal]}</div>
         </div>
         <div className="flex items-center gap-3">

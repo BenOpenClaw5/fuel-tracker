@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Home, LineChart, Plus, Settings as Cog } from "lucide-react";
+import { CalendarDays, ChefHat, Home, LineChart, Plus } from "lucide-react";
 import { Logo } from "./Logo";
 
 const ITEMS = [
   { href: "/", label: "Today", icon: Home },
   { href: "/log", label: "Log", icon: CalendarDays },
+  { href: "/recipes", label: "Recipes", icon: ChefHat },
   { href: "/trends", label: "Trends", icon: LineChart },
-  { href: "/settings", label: "Settings", icon: Cog },
 ] as const;
 
 export function TabBar() {

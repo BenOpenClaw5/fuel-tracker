@@ -122,14 +122,18 @@ export interface LogEntry {
   id: string;
   date: string; // ISO YYYY-MM-DD
   meal: Meal;
+  /** foodId for a single Food, or recipeId when this entry is a saved recipe */
   foodId: string;
+  /** Optional pointer to the source recipe for filtering */
+  recipeId?: string;
   servings: number;
-  // Snapshot at log time so future food edits don't rewrite history
+  /** Snapshot at log time so future food/recipe edits don't rewrite history */
   snapshot: {
     name: string;
     brand?: string;
     servingLabel: string;
     nutrients: Nutrients;
+    isRecipe?: boolean;
   };
   createdAt: number;
 }
@@ -149,4 +153,25 @@ export interface WaterLog {
 export interface AppSettings {
   theme: ThemeChoice;
   units: Units;
+}
+
+export interface RecipeItem {
+  foodId: string;
+  servings: number;
+  // snapshot fields keep recipe nutrition stable even if the source food
+  // changes or the user nukes the food cache
+  cachedName: string;
+  cachedBrand?: string;
+  cachedServingLabel: string;
+  cachedNutrients: Nutrients;
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  servings: number; // total servings the recipe makes
+  notes?: string;
+  items: RecipeItem[];
+  createdAt: number;
+  updatedAt: number;
 }

@@ -6,6 +6,7 @@ import { TabBar } from "@/components/TabBar";
 import { SwRegister } from "@/components/SwRegister";
 import { OnboardingGate } from "@/components/OnboardingGate";
 import { ToastHost } from "@/components/ToastHost";
+import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 
 const display = Fraunces({
   variable: "--font-display",
@@ -68,6 +69,10 @@ export default function RootLayout({
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
       <head>
+        <link rel="preconnect" href="https://world.openfoodfacts.org" />
+        <link rel="dns-prefetch" href="https://world.openfoodfacts.org" />
+        <link rel="preconnect" href="https://api.nal.usda.gov" />
+        <link rel="dns-prefetch" href="https://api.nal.usda.gov" />
         <ThemeBootstrapScript />
       </head>
       <body className="min-h-dvh flex flex-col">
@@ -77,6 +82,7 @@ export default function RootLayout({
             <TabBar />
           </OnboardingGate>
           <ToastHost />
+          <KeyboardShortcuts />
           <SwRegister />
         </ThemeProvider>
       </body>

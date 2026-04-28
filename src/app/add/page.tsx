@@ -3,13 +3,14 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ScanBarcode, Plus, Search } from "lucide-react";
+import { ArrowLeft, ChefHat, ScanBarcode, Plus, Search } from "lucide-react";
 import { todayISODate } from "@/lib/dates";
-import type { Food, Meal } from "@/lib/types";
-import { useFavorites, useFoods, useRecents } from "@/lib/hooks";
+import type { Food, Meal, Recipe } from "@/lib/types";
+import { useFavorites, useFoods, useRecents, useRecipes } from "@/lib/hooks";
 import { FoodResultRow } from "@/components/FoodResultRow";
 import { ServingSheetAnim } from "@/components/AddEntrySheet";
 import { toggleFavorite } from "@/lib/storage";
+import { sumNutrients, scaleNutrients } from "@/lib/nutrients";
 
 const MEAL_LABEL: Record<Meal, string> = {
   breakfast: "Breakfast",
@@ -18,7 +19,7 @@ const MEAL_LABEL: Record<Meal, string> = {
   snacks: "Snacks",
 };
 
-type Tab = "search" | "recents" | "favorites" | "mine";
+type Tab = "search" | "recents" | "favorites" | "recipes" | "mine";
 
 export default function AddPage() {
   return (
@@ -43,6 +44,7 @@ function AddPageInner() {
   const foods = useFoods();
   const recentsList = useRecents();
   const favoritesList = useFavorites();
+  const recipesMap = useRecipes();
 
   const recents = useMemo(
     () => recentsList.map((id) => foods[id]).filter(Boolean) as Food[],
@@ -56,6 +58,28 @@ function AddPageInner() {
     () => Object.values(foods).filter((f) => f.source === "user"),
     [foods],
   );
+  const recipes = useMemo(
+    () =>
+      Object.values(recipesMap).sort((a, b) => b.updatedAt - a.updatedAt),
+    [recipesMap],
+  );
+
+  const recipeAsFood = (r: Recipe): Food => {
+    const totals = sumNutrients(
+      r.items.map((it) => scaleNutrients(it.cachedNutrients, it.servings)),
+    );
+    const perServing = scaleNutrients(totals, 1 / Math.max(1, r.servings));
+    return {
+      id: r.id,
+      source: "user",
+      name: r.name,
+      brand: "Recipe",
+      servingLabel: `1 of ${r.servings} servings`,
+      servingSizeG: 0,
+      nutrients: perServing,
+      createdAt: r.createdAt,
+    };
+  };
 
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -96,7 +120,16 @@ function AddPageInner() {
   }, [query]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const list = tab === "search" ? results : tab === "recents" ? recents : tab === "favorites" ? favorites : mine;
+  const list =
+    tab === "search"
+      ? results
+      : tab === "recents"
+        ? recents
+        : tab === "favorites"
+          ? favorites
+          : tab === "recipes"
+            ? recipes.map(recipeAsFood)
+            : mine;
   const showEmpty = !loading && list.length === 0;
 
   return (
@@ -173,11 +206,19 @@ function AddPageInner() {
               ? "Your recent foods will show here."
               : tab === "favorites"
                 ? "Tap the star on any food to favorite it."
-                : "No custom foods yet."}
-            <div className="mt-4">
-              <Link href="/foods/new" className="btn inline-flex">
-                <Plus size={14} /> Create a custom food
-              </Link>
+                : tab === "recipes"
+                  ? "No saved recipes yet."
+                  : "No custom foods yet."}
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              {tab === "recipes" ? (
+                <Link href="/recipes/new" className="btn inline-flex">
+                  <ChefHat size={14} /> New recipe
+                </Link>
+              ) : (
+                <Link href="/foods/new" className="btn inline-flex">
+                  <Plus size={14} /> Create a custom food
+                </Link>
+              )}
             </div>
           </div>
         ) : null}
@@ -224,11 +265,13 @@ function Tabs({
         { id: "search", label: "Search" },
         { id: "recents", label: "Recents" },
         { id: "favorites", label: "Favorites" },
+        { id: "recipes", label: "Recipes" },
         { id: "mine", label: "Mine" },
       ]
     : [
         { id: "recents", label: "Recents" },
         { id: "favorites", label: "Favorites" },
+        { id: "recipes", label: "Recipes" },
         { id: "mine", label: "Mine" },
       ];
   return (

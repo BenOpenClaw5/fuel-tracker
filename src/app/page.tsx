@@ -7,6 +7,8 @@ import { useMemo } from "react";
 import { Logo } from "@/components/Logo";
 import { MacroDashboard } from "@/components/MacroDashboard";
 import { MealCard } from "@/components/MealCard";
+import { MicroPanel } from "@/components/MicroPanel";
+import { QuickAddStrip } from "@/components/QuickAddStrip";
 import { useGoals, useLog, useWater, useWeight, useProfile } from "@/lib/hooks";
 import { todayISODate } from "@/lib/dates";
 import { scaleNutrients, sumNutrients } from "@/lib/nutrients";
@@ -66,6 +68,10 @@ export default function TodayPage() {
         {goals ? (
           <MacroDashboard totals={totals} goals={goals} />
         ) : null}
+
+        {goals ? <MicroPanel totals={totals} goals={goals} /> : null}
+
+        <QuickAddStrip date={date} />
 
         <div className="grid grid-cols-2 gap-4">
           <WaterCard

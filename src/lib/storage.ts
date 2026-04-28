@@ -6,6 +6,7 @@ import type {
   Goals,
   LogEntry,
   Profile,
+  Recipe,
   WaterLog,
   WeightLog,
 } from "./types";
@@ -21,6 +22,7 @@ const KEYS = {
   recents: "fuel.recents.v1", // array of foodId, most-recent first
   favorites: "fuel.favorites.v1", // array of foodId
   upcCache: "fuel.upcCache.v1", // map upc → foodId
+  recipes: "fuel.recipes.v1", // map id → Recipe
   onboarded: "fuel.onboarded.v1",
 };
 
@@ -42,6 +44,7 @@ interface Cache {
   recents?: string[];
   favorites?: string[];
   upcCache?: Record<string, string>;
+  recipes?: Record<string, Recipe>;
 }
 let cache: Cache = {};
 
@@ -230,6 +233,26 @@ export function toggleFavorite(foodId: string) {
   write(KEYS.favorites, next);
 }
 
+// ── Recipes ────────────────────────────────────────────────────────
+export function loadRecipes(): Record<string, Recipe> {
+  if (cache.recipes) return cache.recipes;
+  cache.recipes = read<Record<string, Recipe>>(KEYS.recipes, {});
+  return cache.recipes;
+}
+export function saveRecipes(map: Record<string, Recipe>) {
+  write(KEYS.recipes, map);
+}
+export function upsertRecipe(recipe: Recipe) {
+  const map = { ...loadRecipes() };
+  map[recipe.id] = recipe;
+  saveRecipes(map);
+}
+export function deleteRecipe(id: string) {
+  const map = { ...loadRecipes() };
+  delete map[id];
+  saveRecipes(map);
+}
+
 // ── Export / Import ────────────────────────────────────────────────
 export function exportAll(): string {
   return JSON.stringify(
@@ -247,6 +270,7 @@ export function exportAll(): string {
       recents: loadRecents(),
       favorites: loadFavorites(),
       upcCache: loadUpcCache(),
+      recipes: loadRecipes(),
     },
     null,
     2,
@@ -266,6 +290,7 @@ export function importAll(json: string) {
   if (Array.isArray(p.recents)) write(KEYS.recents, p.recents);
   if (Array.isArray(p.favorites)) write(KEYS.favorites, p.favorites);
   if (p.upcCache) write(KEYS.upcCache, p.upcCache);
+  if (p.recipes) write(KEYS.recipes, p.recipes);
   emit();
 }
 

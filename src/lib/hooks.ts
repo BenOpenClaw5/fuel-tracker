@@ -8,6 +8,7 @@ import {
   loadLog,
   loadProfile,
   loadRecents,
+  loadRecipes,
   loadSettings,
   loadWater,
   loadWeight,
@@ -21,6 +22,7 @@ import type {
   Goals,
   LogEntry,
   Profile,
+  Recipe,
   WaterLog,
   WeightLog,
 } from "./types";
@@ -30,6 +32,7 @@ const EMPTY_LOG: LogEntry[] = [];
 const EMPTY_WEIGHT: WeightLog[] = [];
 const EMPTY_WATER: Record<string, WaterLog> = {};
 const EMPTY_LIST: string[] = [];
+const EMPTY_RECIPES: Record<string, Recipe> = {};
 
 function subscribe(cb: () => void) {
   return onStorageChange(cb);
@@ -96,6 +99,13 @@ export function useFavorites(): string[] {
     subscribe,
     () => loadFavorites(),
     () => EMPTY_LIST,
+  );
+}
+export function useRecipes(): Record<string, Recipe> {
+  return useSyncExternalStore(
+    subscribe,
+    () => loadRecipes(),
+    () => EMPTY_RECIPES,
   );
 }
 export function useOnboarded(): boolean {

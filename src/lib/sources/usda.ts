@@ -83,6 +83,76 @@ function nutrientValue(
 }
 
 /**
+ * Clean up USDA's verbose "comma-soup" names for SR Legacy + Foundation entries.
+ *   "Chicken, broilers or fryers, breast, meat only, cooked, roasted"
+ *     → "Chicken breast (cooked, roasted)"
+ *   "Beef, ground, 80% lean meat / 20% fat, raw"
+ *     → "Beef ground 80/20 (raw)"
+ *
+ * Branded foods get their description returned as-is.
+ */
+const PREP_KEYWORDS = [
+  "raw",
+  "cooked",
+  "roasted",
+  "fried",
+  "grilled",
+  "boiled",
+  "steamed",
+  "baked",
+  "broiled",
+  "braised",
+  "stewed",
+  "pan-fried",
+  "deep fried",
+  "smoked",
+  "dried",
+  "canned",
+  "frozen",
+  "fresh",
+];
+
+const DROP_TOKENS = [
+  "broilers or fryers",
+  "incl skin",
+  "all classes",
+  "all grades",
+  "with bone",
+  "without bone",
+  "with salt",
+  "without salt",
+  "drained solids",
+  "drained",
+  "ns as to fat eaten",
+];
+
+function tokenIsPrep(t: string): boolean {
+  const lower = t.toLowerCase().trim();
+  return PREP_KEYWORDS.some((k) => lower === k || lower.startsWith(`${k} `) || lower.endsWith(` ${k}`));
+}
+
+function cleanUsdaName(raw: string): string {
+  if (!raw) return raw;
+  if (!raw.includes(",")) return raw;
+  const parts = raw
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .filter((p) => !DROP_TOKENS.some((d) => p.toLowerCase() === d));
+
+  if (parts.length <= 1) return parts[0] ?? raw;
+
+  const prepStart = parts.findIndex(tokenIsPrep);
+  if (prepStart > 0) {
+    const base = parts.slice(0, prepStart).join(" ");
+    const prep = parts.slice(prepStart).join(", ");
+    return `${base} (${prep})`;
+  }
+  // No prep — keep the first 3 tokens at most, joined as "Tomato sauce" style
+  return parts.slice(0, 3).join(" ");
+}
+
+/**
  * Compose a Food. USDA standard reference foods report nutrients per 100 g —
  * we scale to the household serving when present.
  *
@@ -144,6 +214,8 @@ function usdaToFood(u: UsdaFood): Food | null {
     : `${servingG} g`;
 
   const brand = u.brandOwner || u.brandName || undefined;
+  const isBranded = u.dataType === "Branded" || Boolean(brand);
+  const name = isBranded ? u.description : cleanUsdaName(u.description);
 
   return {
     id: `usda_${u.fdcId}`,
@@ -151,7 +223,7 @@ function usdaToFood(u: UsdaFood): Food | null {
     sourceId: String(u.fdcId),
     upc: u.gtinUpc || undefined,
     brand,
-    name: u.description,
+    name,
     servingSizeG: servingG,
     servingLabel,
     nutrients,
@@ -163,11 +235,23 @@ function getKey(): string {
   return process.env.USDA_API_KEY || "DEMO_KEY";
 }
 
-export async function usdaSearch(query: string, pageSize = 12): Promise<Food[]> {
+export type UsdaDataTypes = "whole" | "branded" | "all";
+
+const TYPE_FILTER: Record<UsdaDataTypes, string> = {
+  whole: "Foundation,SR Legacy",
+  branded: "Branded",
+  all: "Foundation,SR Legacy,Branded",
+};
+
+export async function usdaSearch(
+  query: string,
+  pageSize = 12,
+  dataTypes: UsdaDataTypes = "all",
+): Promise<Food[]> {
   if (!query.trim()) return [];
   const url = `${USDA_BASE}/foods/search?api_key=${getKey()}&query=${encodeURIComponent(
     query,
-  )}&pageSize=${pageSize}&dataType=${encodeURIComponent("Foundation,SR Legacy,Branded")}`;
+  )}&pageSize=${pageSize}&dataType=${encodeURIComponent(TYPE_FILTER[dataTypes])}`;
   const res = await fetch(url, { next: { revalidate: 60 * 60 } });
   if (!res.ok) return [];
   const data = (await res.json()) as UsdaSearchResponse;
