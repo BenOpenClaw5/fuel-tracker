@@ -20,12 +20,6 @@ function dedupe(list: Food[]): Food[] {
   return out;
 }
 
-/**
- * Score a result for a query. Lower score = closer to what the user wants.
- *  - exact match starts at 0
- *  - prefix match shorter than non-match
- *  - whole-food (no brand) outranks branded items for short queries
- */
 function score(food: Food, query: string, isShortQuery: boolean): number {
   const name = food.name.toLowerCase();
   const q = query.toLowerCase();
@@ -34,45 +28,47 @@ function score(food: Food, query: string, isShortQuery: boolean): number {
   else if (name.startsWith(q + " ") || name.startsWith(q + ",")) s -= 30;
   else if (name.startsWith(q)) s -= 20;
   else if (name.includes(q)) s -= 5;
-
-  // Reward shorter names — generic whole foods are usually shorter
   s += Math.min(40, name.length / 3);
-
-  // Strongly prefer non-branded results for short queries
   if (isShortQuery && !food.brand) s -= 25;
-
   return s;
+}
+
+interface SearchOk {
+  results: Food[];
+  errors?: Array<{ source: string; message: string }>;
 }
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const q = (url.searchParams.get("q") ?? "").trim();
-  if (!q) return NextResponse.json({ results: [] });
+  if (q.length < 2) {
+    return NextResponse.json<SearchOk>({ results: [] });
+  }
 
   const isShortQuery = q.split(/\s+/).filter(Boolean).length <= 2;
+  const errors: Array<{ source: string; message: string }> = [];
 
-  try {
-    const [whole, branded, off] = await Promise.all([
-      usdaSearch(q, 14, "whole").catch(() => []),
-      usdaSearch(q, 10, "branded").catch(() => []),
-      offSearch(q, 1, 8).catch(() => []),
-    ]);
+  // Run all three in parallel; degrade gracefully on any failure.
+  const [whole, branded, off] = await Promise.all([
+    usdaSearch(q, 14, "whole").catch((e: Error) => {
+      errors.push({ source: "usda-whole", message: e.message });
+      return [] as Food[];
+    }),
+    usdaSearch(q, 10, "branded").catch((e: Error) => {
+      errors.push({ source: "usda-branded", message: e.message });
+      return [] as Food[];
+    }),
+    offSearch(q, 1, 8).catch((e: Error) => {
+      errors.push({ source: "off", message: e.message });
+      return [] as Food[];
+    }),
+  ]);
 
-    // Sort each bucket independently
-    const sortBucket = (list: Food[]) =>
-      list.slice().sort((a, b) => score(a, q, isShortQuery) - score(b, q, isShortQuery));
+  const sortBucket = (list: Food[]) =>
+    list.slice().sort((a, b) => score(a, q, isShortQuery) - score(b, q, isShortQuery));
 
-    const merged = [
-      ...sortBucket(whole), // whole foods first
-      ...sortBucket(branded),
-      ...sortBucket(off),
-    ];
-
-    return NextResponse.json({ results: dedupe(merged).slice(0, 30) });
-  } catch (e) {
-    return NextResponse.json(
-      { results: [], error: (e as Error).message },
-      { status: 500 },
-    );
-  }
+  const merged = [...sortBucket(whole), ...sortBucket(branded), ...sortBucket(off)];
+  const body: SearchOk = { results: dedupe(merged).slice(0, 30) };
+  if (errors.length) body.errors = errors;
+  return NextResponse.json(body);
 }

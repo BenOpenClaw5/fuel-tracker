@@ -80,6 +80,8 @@ export function buildGoals(profile: Profile): Goals {
     carbs_g: macros.carbs_g,
     fat_g: macros.fat_g,
     fiber_g: isMale ? 38 : 25,
+    sugar_g: Math.round((calories * 0.1) / 4),
+    added_sugar_g: 25, // WHO recommends ≤25 g free sugars
     sat_fat_g: Math.round((calories * 0.1) / 9),
     sodium_mg: 2300,
     potassium_mg: 3500,

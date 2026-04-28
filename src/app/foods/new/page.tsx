@@ -79,7 +79,7 @@ export default function NewFoodPage() {
   };
 
   const macros = NUTRIENT_META.filter((m) => m.group === "macro");
-  const fats = NUTRIENT_META.filter((m) => m.group === "fats");
+  const macroDetail = NUTRIENT_META.filter((m) => m.group === "macroDetail");
   const minerals = NUTRIENT_META.filter((m) => m.group === "minerals");
   const vitamins = NUTRIENT_META.filter((m) => m.group === "vitamins");
 
@@ -151,23 +151,13 @@ export default function NewFoodPage() {
         <section className="card p-4">
           <div className="label mb-3">Macros — required</div>
           <div className="grid grid-cols-2 gap-3">
-            {macros.slice(0, 4).map((m) => (
+            {macros.map((m) => (
               <NutrientField
                 key={m.key}
                 meta={m}
                 value={form.values[m.key as string] ?? ""}
                 onChange={(v) => setVal(m.key as string, v)}
                 required
-              />
-            ))}
-          </div>
-          <div className="grid grid-cols-3 gap-3 mt-3">
-            {macros.slice(4).map((m) => (
-              <NutrientField
-                key={m.key}
-                meta={m}
-                value={form.values[m.key as string] ?? ""}
-                onChange={(v) => setVal(m.key as string, v)}
               />
             ))}
           </div>
@@ -184,8 +174,8 @@ export default function NewFoodPage() {
           </button>
           {showMicros ? (
             <div className="mt-4 grid gap-5">
-              <NutrientGroup title="Fats">
-                {fats.map((m) => (
+              <NutrientGroup title="Macro detail (fiber, sugar, fats)">
+                {macroDetail.map((m) => (
                   <NutrientField
                     key={m.key}
                     meta={m}

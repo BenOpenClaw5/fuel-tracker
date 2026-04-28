@@ -281,6 +281,19 @@ button[disabled] {
   cursor: not-allowed;
 }
 
+/* Stronger focus rings — visible only on keyboard focus, not click. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.btn:focus-visible,
+.btn-primary:focus-visible,
+.btn-info:focus-visible,
+.btn-ghost:focus-visible {
+  outline-offset: 2px;
+}
+
 .pill {
   display: inline-flex;
   align-items: center;

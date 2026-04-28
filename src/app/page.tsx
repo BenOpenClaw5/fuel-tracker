@@ -3,15 +3,17 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Droplets, Scale, Settings as Cog } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { MacroDashboard } from "@/components/MacroDashboard";
 import { MealCard } from "@/components/MealCard";
 import { MicroPanel } from "@/components/MicroPanel";
+import { KeyNutrients } from "@/components/KeyNutrients";
+import { NutrientDetailSheet } from "@/components/NutrientDetailSheet";
 import { QuickAddStrip } from "@/components/QuickAddStrip";
 import { useGoals, useLog, useWater, useWeight, useProfile } from "@/lib/hooks";
 import { todayISODate } from "@/lib/dates";
-import { scaleNutrients, sumNutrients } from "@/lib/nutrients";
+import { scaleNutrients, sumNutrients, type NutrientKey } from "@/lib/nutrients";
 import type { Meal } from "@/lib/types";
 import { setWater, upsertWeight } from "@/lib/storage";
 import { showToast } from "@/components/ToastHost";
@@ -38,6 +40,7 @@ export default function TodayPage() {
   const todayWater = water[date]?.ml ?? 0;
   const waterTarget = goals?.water_ml ?? 2500;
   const lastWeight = weights[weights.length - 1];
+  const [detailKey, setDetailKey] = useState<NutrientKey | null>(null);
 
   const today = new Date();
   const niceDate = today.toLocaleDateString("en-US", {
@@ -66,10 +69,24 @@ export default function TodayPage() {
 
       <div className="px-5 pt-3 grid gap-4 max-w-[760px] w-full mx-auto">
         {goals ? (
-          <MacroDashboard totals={totals} goals={goals} />
+          <MacroDashboard
+            totals={totals}
+            goals={goals}
+            onSelectNutrient={(k) => setDetailKey(k)}
+          />
         ) : null}
 
-        {goals ? <MicroPanel totals={totals} goals={goals} /> : null}
+        {goals ? (
+          <KeyNutrients
+            totals={totals}
+            goals={goals}
+            onSelect={(k) => setDetailKey(k)}
+          />
+        ) : null}
+
+        {goals ? (
+          <MicroPanel totals={totals} goals={goals} onSelect={(k) => setDetailKey(k)} />
+        ) : null}
 
         <QuickAddStrip date={date} />
 
@@ -110,6 +127,13 @@ export default function TodayPage() {
           ))}
         </div>
       </div>
+
+      <NutrientDetailSheet
+        nutrientKey={detailKey}
+        entries={todays}
+        goals={goals}
+        onClose={() => setDetailKey(null)}
+      />
     </div>
   );
 }

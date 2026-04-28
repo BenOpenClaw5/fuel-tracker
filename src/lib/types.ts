@@ -95,7 +95,9 @@ export type Goals = {
   // Optional micronutrient targets (filled from RDA defaults at onboarding)
   fiber_g?: number;
   sugar_g?: number;
+  added_sugar_g?: number;
   sat_fat_g?: number;
+  trans_fat_g?: number;
   cholesterol_mg?: number;
   sodium_mg?: number;
   potassium_mg?: number;

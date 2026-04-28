@@ -3,9 +3,9 @@
 import { ChevronRight, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { deleteLogEntry } from "@/lib/storage";
+import { addLogEntry, deleteLogEntry } from "@/lib/storage";
 import type { LogEntry, Meal } from "@/lib/types";
-import { showToast } from "./ToastHost";
+import { onToastAction, showToast } from "./ToastHost";
 
 const MEAL_LABEL: Record<Meal, string> = {
   breakfast: "Breakfast",
@@ -120,12 +120,26 @@ function EntryRow({ entry }: { entry: LogEntry }) {
       </div>
       <button
         type="button"
-        aria-label="Delete"
+        aria-label={`Remove ${entry.snapshot.name}`}
         onClick={() => {
+          const snapshot = entry;
           deleteLogEntry(entry.id);
-          showToast("Removed");
+          const undoId = `undo-log-${entry.id}`;
+          let restored = false;
+          const off = onToastAction(undoId, () => {
+            if (restored) return;
+            restored = true;
+            addLogEntry(snapshot);
+            showToast("Restored", "success");
+            off();
+          });
+          // Clean up listener if user lets the toast time out
+          window.setTimeout(off, 6000);
+          showToast(`Removed ${snapshot.snapshot.name}`, "info", {
+            action: { label: "Undo", id: undoId },
+          });
         }}
-        className="p-2 text-[var(--muted)] hover:text-[var(--danger)]"
+        className="p-2 text-[var(--muted)] hover:text-[var(--danger)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] rounded-[6px]"
       >
         <Trash2 size={15} strokeWidth={2} />
       </button>

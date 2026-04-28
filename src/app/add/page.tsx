@@ -11,6 +11,7 @@ import { FoodResultRow } from "@/components/FoodResultRow";
 import { ServingSheetAnim } from "@/components/AddEntrySheet";
 import { toggleFavorite } from "@/lib/storage";
 import { sumNutrients, scaleNutrients } from "@/lib/nutrients";
+import { readCache, writeCache } from "@/lib/searchCache";
 
 const MEAL_LABEL: Record<Meal, string> = {
   breakfast: "Breakfast",
@@ -86,19 +87,25 @@ function AddPageInner() {
     inputRef.current?.focus();
   }, []);
 
-  // Debounced live search.
-  // Note: this effect synchronizes external (network) state into local
-  // state, so setState calls below are intentional.
+  // Debounced live search with min-length + client cache.
+  // Effect synchronizes network state -> component state; setState calls below
+  // are the documented escape hatch.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const q = query.trim();
-    if (!q) {
+    if (q.length < 2) {
       setResults([]);
       setLoading(false);
       return;
     }
-    setLoading(true);
     setTab("search");
+    const cached = readCache(q);
+    if (cached) {
+      setResults(cached);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     const ctrl = new AbortController();
     const timer = window.setTimeout(async () => {
       try {
@@ -106,7 +113,9 @@ function AddPageInner() {
           signal: ctrl.signal,
         });
         const data = (await res.json()) as { results: Food[] };
-        setResults(data.results ?? []);
+        const list = data.results ?? [];
+        writeCache(q, list);
+        setResults(list);
       } catch (e) {
         if ((e as Error).name !== "AbortError") setResults([]);
       } finally {
@@ -185,13 +194,19 @@ function AddPageInner() {
           </div>
         ) : null}
 
-        {!loading && tab === "search" && !query.trim() ? (
+        {!loading && tab === "search" && query.trim().length === 0 ? (
           <div className="px-5 py-10 text-center text-[14px] text-[var(--muted)]">
             Type to search USDA + Open Food Facts.
           </div>
         ) : null}
 
-        {showEmpty && tab === "search" && query.trim() ? (
+        {!loading && tab === "search" && query.trim().length === 1 ? (
+          <div className="px-5 py-10 text-center text-[14px] text-[var(--muted)]">
+            Keep typing — at least 2 letters.
+          </div>
+        ) : null}
+
+        {showEmpty && tab === "search" && query.trim().length >= 2 ? (
           <div className="px-5 py-10 text-center">
             <div className="text-[14px] text-[var(--fg-dim)]">No matches.</div>
             <Link href="/foods/new" className="btn mt-4 inline-flex">
