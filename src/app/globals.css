@@ -93,6 +93,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
   text-rendering: optimizeLegibility;
+  /* Defensive: never allow horizontal page scroll on mobile, even if a
+     descendant briefly exceeds the viewport (long brand names, very large
+     numbers, etc.). The right fix is always to fix the offending component,
+     but this clips the bleed so users never see horizontal scrollbars. */
+  overflow-x: clip;
+  max-width: 100vw;
 }
 
 body {

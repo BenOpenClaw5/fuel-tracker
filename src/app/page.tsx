@@ -67,7 +67,7 @@ export default function TodayPage() {
         <h1 className="display-xl mt-1">Today</h1>
       </div>
 
-      <div className="px-5 pt-3 grid gap-4 max-w-[760px] w-full mx-auto">
+      <div className="px-5 pt-3 grid grid-cols-[minmax(0,1fr)] gap-4 max-w-[760px] w-full mx-auto">
         {goals ? (
           <MacroDashboard
             totals={totals}
@@ -90,7 +90,7 @@ export default function TodayPage() {
 
         <QuickAddStrip date={date} />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4">
           <WaterCard
             ml={todayWater}
             target={waterTarget}
@@ -110,7 +110,7 @@ export default function TodayPage() {
           />
         </div>
 
-        <div className="grid gap-3">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3">
           {MEALS.map((m, i) => (
             <motion.div
               key={m}
@@ -164,13 +164,15 @@ function WaterCard({
           −250
         </button>
       </div>
-      <div className="mt-2 numeric text-[24px] font-semibold leading-none">
-        {ml.toLocaleString()}
-        <span className="text-[var(--muted)] text-[13px] font-normal numeric">
-          {" "}
-          / {target.toLocaleString()}{" "}
-        </span>
-        <span className="label">ml</span>
+      <div className="mt-2 leading-none">
+        <div className="numeric text-[22px] font-semibold leading-none">
+          {ml.toLocaleString()}
+          <span className="text-[var(--muted)] text-[12px] font-normal numeric">
+            {" / "}
+            {target.toLocaleString()}
+          </span>
+        </div>
+        <div className="label mt-1">ml</div>
       </div>
       <div className="mt-3 h-[4px] rounded-full bg-[var(--panel-2)] overflow-hidden">
         <motion.div

@@ -31,7 +31,7 @@ export default function RecipesPage() {
         </p>
       </div>
 
-      <div className="px-5 grid gap-3 max-w-[760px] w-full mx-auto pb-8">
+      <div className="px-5 grid grid-cols-[minmax(0,1fr)] gap-3 max-w-[760px] w-full mx-auto pb-8">
         {recipes.length === 0 ? (
           <div className="card p-8 text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--panel-2)] mb-3">

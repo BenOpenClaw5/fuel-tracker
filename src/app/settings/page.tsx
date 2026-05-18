@@ -93,7 +93,7 @@ export default function SettingsPage() {
         <h1 className="display-xl">Settings</h1>
       </div>
 
-      <div className="px-5 grid gap-4 max-w-[760px] w-full mx-auto pb-8">
+      <div className="px-5 grid grid-cols-[minmax(0,1fr)] gap-4 max-w-[760px] w-full mx-auto pb-8">
         <section className="card p-4">
           <div className="label-strong mb-3">Appearance</div>
           <div className="grid grid-cols-3 p-1 bg-[var(--panel-2)] rounded-[var(--radius)] border border-[var(--border)] gap-1">

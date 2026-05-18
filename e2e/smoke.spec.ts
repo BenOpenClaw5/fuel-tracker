@@ -402,15 +402,77 @@ test.describe("FUEL smoke", () => {
       (r) => r.url().includes("/api/search?q=chicken") && r.status() === 200,
       { timeout: 15000 },
     );
-    // First result should be a curated chicken breast
     const firstItem = page.locator("ul.divide-y > li").first();
     await firstItem.click();
-    // Sheet shows the Serving size dropdown
     const sizeSelect = page.getByRole("combobox", { name: /serving size/i });
     await expect(sizeSelect).toBeVisible();
-    // Options should include both oz and grams entries
     const options = await sizeSelect.locator("option").allTextContents();
     expect(options.some((o) => /oz/i.test(o))).toBeTruthy();
     expect(options.some((o) => /\bg\b/.test(o))).toBeTruthy();
+  });
+
+  test("amount input: clearing + retyping doesn't snap and logs the typed amount", async ({
+    page,
+  }) => {
+    await seedOnboarded(page);
+    await page.goto("/add?meal=lunch");
+    await page.getByPlaceholder(/Search foods/i).fill("honey");
+    await page.waitForResponse(
+      (r) => r.url().includes("/api/search?q=honey") && r.status() === 200,
+      { timeout: 15000 },
+    );
+    await page.locator("ul.divide-y > li").first().click();
+    const amount = page.getByRole("textbox", { name: /^Amount$/ });
+    await expect(amount).toBeVisible();
+    // Clear and retype — must NOT snap to 0.25 or any other forced minimum
+    await amount.fill("");
+    await expect(amount).toHaveValue("");
+    await amount.fill("3");
+    await expect(amount).toHaveValue("3");
+    // Decimals are accepted
+    await amount.fill("2.5");
+    await expect(amount).toHaveValue("2.5");
+  });
+
+  test("amount input: pick '1 g' unit and type a gram amount", async ({ page }) => {
+    await seedOnboarded(page);
+    await page.goto("/add?meal=lunch");
+    await page.getByPlaceholder(/Search foods/i).fill("oats");
+    await page.waitForResponse(
+      (r) => r.url().includes("/api/search?q=oats") && r.status() === 200,
+      { timeout: 15000 },
+    );
+    await page.locator("ul.divide-y > li").first().click();
+
+    const sizeSelect = page.getByRole("combobox", { name: /serving size/i });
+    await sizeSelect.selectOption({ label: "1 g" });
+
+    const amount = page.getByRole("textbox", { name: /^Amount$/ });
+    await amount.fill("150");
+    await expect(amount).toHaveValue("150");
+
+    // "Total" readout shows 150 g
+    await expect(page.getByText(/Total/i)).toBeVisible();
+    // Submit button should be enabled
+    const submit = page.getByRole("button", { name: /Add to Lunch/i });
+    await expect(submit).toBeEnabled();
+  });
+
+  test("amount input: empty + submit is blocked (no zero-amount entries)", async ({
+    page,
+  }) => {
+    await seedOnboarded(page);
+    await page.goto("/add?meal=lunch");
+    await page.getByPlaceholder(/Search foods/i).fill("honey");
+    await page.waitForResponse(
+      (r) => r.url().includes("/api/search?q=honey") && r.status() === 200,
+      { timeout: 15000 },
+    );
+    await page.locator("ul.divide-y > li").first().click();
+    const amount = page.getByRole("textbox", { name: /^Amount$/ });
+    await amount.fill("");
+    // Submit button should be disabled while amount is empty/zero
+    const submit = page.getByRole("button", { name: /Add to Lunch/i });
+    await expect(submit).toBeDisabled();
   });
 });

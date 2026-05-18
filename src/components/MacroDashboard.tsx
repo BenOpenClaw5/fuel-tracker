@@ -51,7 +51,7 @@ export function MacroDashboard({
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mt-5">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-3 mt-5">
         <MacroBar
           label="Protein"
           color="var(--accent)"

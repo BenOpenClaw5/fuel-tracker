@@ -149,7 +149,7 @@ export default function LogPage() {
         </div>
       </section>
 
-      <section className="px-5 pt-3 grid gap-3 max-w-[760px] w-full mx-auto pb-8">
+      <section className="px-5 pt-3 grid grid-cols-[minmax(0,1fr)] gap-3 max-w-[760px] w-full mx-auto pb-8">
         {(Object.keys(grouped) as Meal[]).map((meal) => (
           <article key={meal} className="card overflow-hidden">
             <header className="px-4 pt-3 pb-2 flex items-center justify-between">

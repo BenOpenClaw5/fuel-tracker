@@ -21,10 +21,6 @@ const ALWAYS_AVAILABLE_OPTIONS: ServingOption[] = [
   { label: "1 oz (28.35 g)", grams: 28.3495 },
 ];
 
-/**
- * Merge food.servingOptions with the always-on grams/oz options at the bottom,
- * de-duped by label.
- */
 function buildOptions(food: Food): ServingOption[] {
   const seen = new Set<string>();
   const out: ServingOption[] = [];
@@ -38,6 +34,21 @@ function buildOptions(food: Food): ServingOption[] {
     out.push(o);
   }
   return out;
+}
+
+/**
+ * +/− increment depends on the chosen unit. For raw grams, +1g is too fine —
+ * step by 10. For ounces, +1. Otherwise default to 1.
+ */
+function stepFor(option: ServingOption): number {
+  const label = option.label.toLowerCase();
+  if (/^1 g\b/.test(label)) return 10;
+  return 1;
+}
+
+function fmtAmount(n: number): string {
+  if (!Number.isFinite(n) || n <= 0) return "";
+  return parseFloat(n.toFixed(2)).toString();
 }
 
 export function AddEntrySheet({
@@ -55,31 +66,58 @@ export function AddEntrySheet({
 }) {
   const options = useMemo(() => buildOptions(food), [food]);
   const [optionIndex, setOptionIndex] = useState(0);
-  const [servings, setServings] = useState(1);
+  /**
+   * Input is kept as a string while the user types — we never snap a
+   * partially-typed value (the prior `0.25` clamp bug). The numeric
+   * `amount` is derived on read and only validated on submit/blur.
+   */
+  const [amountStr, setAmountStr] = useState("1");
   const [activeMeal, setActiveMeal] = useState<Meal>(meal);
 
   const selected = options[optionIndex];
-
-  /**
-   * Factor against the food's canonical serving size. If selected serving is
-   * 113 g and canonical is 100 g, factor is 1.13 per "1 serving" the user
-   * declares.
-   */
-  const factor = (selected.grams / food.servingSizeG) * servings;
+  const amount = Math.max(0, parseFloat(amountStr) || 0);
+  const step = stepFor(selected);
+  const totalGrams = selected.grams * amount;
+  const factor = totalGrams / food.servingSizeG;
   const scaled = scaleNutrients(food.nutrients, factor);
+  const canSubmit = amount > 0;
+
+  const switchOption = (newIndex: number) => {
+    setOptionIndex(newIndex);
+    setAmountStr("1");
+  };
+
+  const bumpAmount = (delta: number) => {
+    const next = Math.max(0, amount + delta);
+    setAmountStr(fmtAmount(next));
+  };
+
+  const onAmountChange = (raw: string) => {
+    if (raw === "" || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+      setAmountStr(raw);
+    }
+  };
+
+  const onAmountBlur = () => {
+    if (amountStr === "" || amount === 0) setAmountStr("1");
+  };
 
   const submit = () => {
+    if (!canSubmit) {
+      showToast("Enter an amount", "error");
+      return;
+    }
     upsertFood(food);
-    // Snapshot uses the chosen serving as the "1 unit", so the log row reads
-    // naturally (e.g. "2× 4 oz (113 g)") rather than carrying the food's
-    // canonical serving.
-    const perChoice: Nutrients = scaleNutrients(food.nutrients, selected.grams / food.servingSizeG);
+    const perChoice: Nutrients = scaleNutrients(
+      food.nutrients,
+      selected.grams / food.servingSizeG,
+    );
     addLogEntry({
       id: newId("log"),
       date,
       meal: activeMeal,
       foodId: food.id,
-      servings,
+      servings: amount,
       snapshot: {
         name: food.name,
         brand: food.brand,
@@ -91,6 +129,11 @@ export function AddEntrySheet({
     showToast("Logged", "success");
     onLogged();
   };
+
+  const totalDisplay =
+    totalGrams >= 100
+      ? `${Math.round(totalGrams)} g`
+      : `${totalGrams.toFixed(1)} g`;
 
   return (
     <>
@@ -109,10 +152,10 @@ export function AddEntrySheet({
         transition={{ type: "spring", stiffness: 340, damping: 34 }}
       >
         <span className="sheet-handle" aria-hidden />
-        <div className="px-5 pt-3 pb-2 grid grid-cols-[1fr_auto] items-start gap-2">
+        <div className="px-5 pt-3 pb-2 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
           <div className="min-w-0">
             <div className="display-md truncate">{food.name}</div>
-            <div className="label mt-1">
+            <div className="label mt-1 truncate">
               {food.brand ? `${food.brand} · ` : ""}
               <span className="numeric">{selected.label}</span>
             </div>
@@ -130,7 +173,7 @@ export function AddEntrySheet({
         <div className="px-5 mt-3">
           <div className="label mb-2">Meal</div>
           <div
-            className="grid grid-cols-4 p-1 bg-[var(--panel-2)] rounded-[var(--radius)] border border-[var(--border)] gap-1"
+            className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] p-1 bg-[var(--panel-2)] rounded-[var(--radius)] border border-[var(--border)] gap-1"
             role="radiogroup"
             aria-label="Meal"
           >
@@ -142,7 +185,7 @@ export function AddEntrySheet({
                 aria-checked={activeMeal === m}
                 onClick={() => setActiveMeal(m)}
                 className={
-                  "h-9 rounded-[6px] text-[12px] font-semibold transition-colors " +
+                  "h-9 rounded-[6px] text-[12px] font-semibold transition-colors truncate min-w-0 " +
                   (activeMeal === m
                     ? "bg-[var(--panel)] shadow-[var(--shadow-sm)] text-[var(--fg)]"
                     : "text-[var(--fg-dim)]")
@@ -158,7 +201,7 @@ export function AddEntrySheet({
           <div className="label mb-2">Serving size</div>
           <select
             value={optionIndex}
-            onChange={(e) => setOptionIndex(Number(e.target.value))}
+            onChange={(e) => switchOption(Number(e.target.value))}
             aria-label="Serving size"
             className="w-full"
           >
@@ -171,51 +214,56 @@ export function AddEntrySheet({
         </div>
 
         <div className="px-5 mt-4">
-          <div className="label mb-2">Servings</div>
-          <div className="flex items-center gap-3">
+          <div className="label mb-2">Amount</div>
+          <div className="flex items-stretch gap-2">
             <button
               type="button"
-              onClick={() =>
-                setServings((v) => Math.max(0.25, Math.round((v - 0.5) * 4) / 4))
-              }
-              className="btn !w-12 !h-12 !min-h-[48px] !px-0"
-              aria-label="Decrease servings"
+              onClick={() => bumpAmount(-step)}
+              className="btn !w-12 !h-12 !min-h-[48px] !px-0 shrink-0"
+              aria-label={`Decrease by ${step}`}
+              disabled={amount <= 0}
             >
               <Minus size={16} />
             </button>
             <input
-              type="number"
-              min={0.25}
-              step={0.25}
-              value={servings}
-              onChange={(e) =>
-                setServings(Math.max(0.25, Number(e.target.value) || 0.25))
-              }
-              className="numeric text-center !text-[18px] !font-semibold flex-1"
-              aria-label="Servings"
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              value={amountStr}
+              onChange={(e) => onAmountChange(e.target.value)}
+              onBlur={onAmountBlur}
+              onFocus={(e) => e.target.select()}
+              className="numeric text-center !text-[20px] !font-semibold flex-1 min-w-0"
+              aria-label="Amount"
+              placeholder="0"
             />
             <button
               type="button"
-              onClick={() => setServings((v) => Math.round((v + 0.5) * 4) / 4)}
-              className="btn !w-12 !h-12 !min-h-[48px] !px-0"
-              aria-label="Increase servings"
+              onClick={() => bumpAmount(step)}
+              className="btn !w-12 !h-12 !min-h-[48px] !px-0 shrink-0"
+              aria-label={`Increase by ${step}`}
             >
               <Plus size={16} />
             </button>
           </div>
-        </div>
-
-        <div className="px-5 mt-3">
-          <div className="text-[12px] text-[var(--muted)]">
-            Total:{" "}
-            <span className="numeric text-[var(--fg)] font-semibold">
-              {(selected.grams * servings).toFixed(servings * selected.grams < 10 ? 1 : 0)} g
-            </span>
+          <div className="mt-2 text-[12px] text-[var(--muted)] numeric truncate">
+            {canSubmit ? (
+              <>
+                Total{" "}
+                <span className="text-[var(--fg)] font-semibold">
+                  {totalDisplay}
+                </span>
+              </>
+            ) : (
+              <>Enter an amount</>
+            )}
           </div>
         </div>
 
         <div className="px-5 mt-4 mb-2">
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-3">
             <Quad label="Calories" value={scaled.calories} unit="" />
             <Quad label="Protein" value={scaled.protein_g} unit="g" color="var(--accent)" />
             <Quad label="Carbs" value={scaled.carbs_g} unit="g" color="var(--info)" />
@@ -224,13 +272,18 @@ export function AddEntrySheet({
         </div>
 
         <div
-          className="px-5 pt-3 pb-5 border-t border-[var(--border)] mt-2 grid grid-cols-2 gap-3"
+          className="px-5 pt-3 pb-5 border-t border-[var(--border)] mt-2 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 14px)" }}
         >
           <button type="button" onClick={onClose} className="btn">
             Cancel
           </button>
-          <button type="button" onClick={submit} className="btn btn-primary btn-lg">
+          <button
+            type="button"
+            onClick={submit}
+            className="btn btn-primary btn-lg"
+            disabled={!canSubmit}
+          >
             Add to {MEAL_LABEL[activeMeal]}
           </button>
         </div>
@@ -251,14 +304,14 @@ function Quad({
   color?: string;
 }) {
   return (
-    <div>
-      <div className="flex items-center gap-1">
+    <div className="min-w-0">
+      <div className="flex items-center gap-1 min-w-0">
         {color ? (
-          <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: color }} />
+          <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color }} />
         ) : null}
-        <div className="label">{label}</div>
+        <div className="label truncate">{label}</div>
       </div>
-      <div className="mt-0.5 numeric text-[16px] font-semibold leading-none">
+      <div className="mt-0.5 numeric text-[16px] font-semibold leading-none truncate">
         {value == null ? "—" : Math.round(value)}
         {unit && value != null ? (
           <span className="text-[var(--muted)] text-[11px] font-normal">{unit}</span>

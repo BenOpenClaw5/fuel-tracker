@@ -113,7 +113,7 @@ export default function TrendsPage() {
         <WindowSwitcher value={days} onChange={setDays} />
       </div>
 
-      <div className="px-5 grid gap-4 max-w-[760px] w-full mx-auto pb-8">
+      <div className="px-5 grid grid-cols-[minmax(0,1fr)] gap-4 max-w-[760px] w-full mx-auto pb-8">
         {/* Calories headline */}
         <article className="card p-5">
           <div className="flex items-baseline justify-between gap-3">
@@ -225,7 +225,7 @@ export default function TrendsPage() {
         {/* Mini grid: each watch nutrient at a glance */}
         <article className="card p-4">
           <div className="label-strong mb-3">Watch list — daily averages</div>
-          <ul className="grid gap-3">
+          <ul className="grid grid-cols-[minmax(0,1fr)] gap-3">
             {WATCH_TABLE.map((m) => {
               const values = seriesValues(m.key);
               const a = avg(values);

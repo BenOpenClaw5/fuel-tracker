@@ -78,7 +78,7 @@ export function RecipeBuilder({ initial }: RecipeBuilderProps) {
         </div>
       </header>
 
-      <div className="flex-1 px-5 py-5 max-w-[640px] w-full mx-auto grid gap-4">
+      <div className="flex-1 px-5 py-5 max-w-[640px] w-full mx-auto grid grid-cols-[minmax(0,1fr)] gap-4">
         <section className="card p-4">
           <label className="block">
             <div className="label mb-1.5">Name</div>

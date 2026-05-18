@@ -30,7 +30,7 @@ export function KeyNutrients({
         <div className="label-strong">Key nutrients</div>
         <div className="label">Tap for details</div>
       </div>
-      <div className="grid grid-cols-2 gap-[1px] bg-[var(--border)] rounded-[var(--radius)] overflow-hidden border border-[var(--border)]">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-[1px] bg-[var(--border)] rounded-[var(--radius)] overflow-hidden border border-[var(--border)]">
         {WATCH_NUTRIENTS.map((meta) => {
           const value = nutrientValue(totals, meta.key) ?? 0;
           const target =
@@ -51,10 +51,10 @@ export function KeyNutrients({
               key={meta.key}
               onClick={() => onSelect(meta.key)}
               aria-label={`${meta.label} detail`}
-              className="bg-[var(--panel)] active:bg-[var(--panel-2)] px-3 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+              className="bg-[var(--panel)] active:bg-[var(--panel-2)] px-3 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] min-w-0"
             >
-              <div className="flex items-baseline justify-between">
-                <div className="label-strong">{shortName(meta.label)}</div>
+              <div className="flex items-baseline justify-between gap-1 min-w-0">
+                <div className="label-strong truncate min-w-0">{shortName(meta.label)}</div>
                 <DirectionPill direction={direction} status={status} />
               </div>
               <div className="mt-1 flex items-baseline gap-1">
