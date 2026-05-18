@@ -14,6 +14,7 @@ import {
   saveSettings,
 } from "@/lib/storage";
 import { buildGoals, kgToLbs, lbsToKg } from "@/lib/nutrition";
+import { clearCache } from "@/lib/searchCache";
 import type { ActivityLevel, Goal, Goals, Sex, ThemeChoice, Units } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
@@ -311,6 +312,16 @@ export default function SettingsPage() {
           />
           <button
             type="button"
+            onClick={() => {
+              clearCache();
+              showToast("Search cache cleared", "success");
+            }}
+            className="btn mt-3 w-full"
+          >
+            Clear search cache
+          </button>
+          <button
+            type="button"
             onClick={confirmNuke}
             className="btn mt-3 w-full !border-[var(--danger)] !text-[var(--danger)] hover:!bg-[var(--danger)] hover:!text-white"
           >
@@ -319,7 +330,7 @@ export default function SettingsPage() {
         </section>
 
         <p className="text-center text-[12px] text-[var(--muted)] py-2">
-          FUEL · PHASE 1 · LOCAL ONLY
+          FUEL · LOCAL ONLY · curated foods + USDA + Open Food Facts
         </p>
       </div>
     </div>

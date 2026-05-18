@@ -28,10 +28,12 @@ export function readCache(q: string): Food[] | null {
 }
 
 export function writeCache(q: string, results: Food[]): void {
+  // Never cache empty/error results — they would block real results that
+  // appear seconds later when an API recovers.
+  if (results.length === 0) return;
   const k = key(q);
   cache.set(k, { results, ts: Date.now() });
   if (cache.size > MAX_ENTRIES) {
-    // drop oldest
     const oldest = [...cache.entries()].sort((a, b) => a[1].ts - b[1].ts)[0];
     if (oldest) cache.delete(oldest[0]);
   }

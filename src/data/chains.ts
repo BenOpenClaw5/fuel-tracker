@@ -1,0 +1,436 @@
+import type { Food, Nutrients } from "@/lib/types";
+
+/**
+ * Curated chain restaurant nutrition data.
+ *
+ * Values are factual nutrient data published by each chain. We do not
+ * reproduce marketing copy, descriptions, or images — only numbers and
+ * item names. Numeric facts are not copyrightable (Feist v. Rural, 1991).
+ *
+ * Update when chain menus change. To regenerate, see scripts/scrape-*.
+ */
+export interface ChainSeed {
+  id: string;
+  brand: string;
+  name: string;
+  aliases?: string[];
+  /** Nutrients per "1 item" (not per 100 g). */
+  perItem: Nutrients;
+  /** Display label for the portion (e.g. "30 ct", "12 oz"). */
+  portionLabel: string;
+  /** Approximate gram weight of one item — for reporting "grams" totals. */
+  approxGrams?: number;
+}
+
+export const CHAIN_SEEDS: ChainSeed[] = [
+  // ─── Chick-fil-A ────────────────────────────────────────────────
+  {
+    id: "cfa_grilled_nuggets_8",
+    brand: "Chick-fil-A",
+    name: "Grilled Nuggets",
+    aliases: ["cfa grilled nuggets", "cfa nuggets grilled"],
+    portionLabel: "8 ct",
+    approxGrams: 113,
+    perItem: { calories: 130, protein_g: 25, carbs_g: 1, fat_g: 3, sat_fat_g: 1, sodium_mg: 440, cholesterol_mg: 75, sugar_g: 0 },
+  },
+  {
+    id: "cfa_grilled_nuggets_12",
+    brand: "Chick-fil-A",
+    name: "Grilled Nuggets",
+    aliases: ["cfa grilled nuggets 12"],
+    portionLabel: "12 ct",
+    approxGrams: 170,
+    perItem: { calories: 200, protein_g: 38, carbs_g: 2, fat_g: 4.5, sat_fat_g: 1.5, sodium_mg: 660, cholesterol_mg: 110, sugar_g: 0 },
+  },
+  {
+    id: "cfa_grilled_nuggets_30",
+    brand: "Chick-fil-A",
+    name: "Grilled Nuggets",
+    aliases: ["cfa grilled nuggets 30", "cfa 30 count grilled nuggets", "30 grilled nuggets"],
+    portionLabel: "30 ct",
+    approxGrams: 425,
+    perItem: { calories: 500, protein_g: 95, carbs_g: 5, fat_g: 11, sat_fat_g: 3.5, sodium_mg: 1650, cholesterol_mg: 280, sugar_g: 0 },
+  },
+  {
+    id: "cfa_nuggets_8",
+    brand: "Chick-fil-A",
+    name: "Nuggets",
+    aliases: ["cfa nuggets", "chick-fil-a nuggets"],
+    portionLabel: "8 ct",
+    approxGrams: 113,
+    perItem: { calories: 250, protein_g: 27, carbs_g: 11, fat_g: 11, sat_fat_g: 2.5, sodium_mg: 1210, cholesterol_mg: 85, sugar_g: 1 },
+  },
+  {
+    id: "cfa_nuggets_12",
+    brand: "Chick-fil-A",
+    name: "Nuggets",
+    portionLabel: "12 ct",
+    approxGrams: 170,
+    perItem: { calories: 370, protein_g: 40, carbs_g: 17, fat_g: 16, sat_fat_g: 3.5, sodium_mg: 1810, cholesterol_mg: 125, sugar_g: 1 },
+  },
+  {
+    id: "cfa_nuggets_30",
+    brand: "Chick-fil-A",
+    name: "Nuggets",
+    aliases: ["cfa 30 nuggets"],
+    portionLabel: "30 ct",
+    approxGrams: 425,
+    perItem: { calories: 940, protein_g: 100, carbs_g: 41, fat_g: 41, sat_fat_g: 9, sodium_mg: 4540, cholesterol_mg: 315, sugar_g: 2 },
+  },
+  {
+    id: "cfa_chicken_sandwich",
+    brand: "Chick-fil-A",
+    name: "Original Chicken Sandwich",
+    aliases: ["cfa sandwich"],
+    portionLabel: "1 sandwich",
+    approxGrams: 183,
+    perItem: { calories: 420, protein_g: 28, carbs_g: 41, fat_g: 16, sat_fat_g: 3.5, sodium_mg: 1400, cholesterol_mg: 60, fiber_g: 2, sugar_g: 6 },
+  },
+  {
+    id: "cfa_spicy_sandwich",
+    brand: "Chick-fil-A",
+    name: "Spicy Chicken Sandwich",
+    portionLabel: "1 sandwich",
+    approxGrams: 183,
+    perItem: { calories: 450, protein_g: 28, carbs_g: 42, fat_g: 17, sat_fat_g: 4, sodium_mg: 1530, cholesterol_mg: 60, fiber_g: 2, sugar_g: 6 },
+  },
+  {
+    id: "cfa_grilled_chicken_sandwich",
+    brand: "Chick-fil-A",
+    name: "Grilled Chicken Sandwich",
+    portionLabel: "1 sandwich",
+    approxGrams: 232,
+    perItem: { calories: 380, protein_g: 28, carbs_g: 41, fat_g: 11, sat_fat_g: 2, sodium_mg: 750, cholesterol_mg: 80, fiber_g: 5, sugar_g: 9 },
+  },
+  {
+    id: "cfa_waffle_fries_med",
+    brand: "Chick-fil-A",
+    name: "Waffle Potato Fries",
+    aliases: ["cfa fries", "waffle fries"],
+    portionLabel: "Medium",
+    approxGrams: 125,
+    perItem: { calories: 360, protein_g: 4, carbs_g: 47, fat_g: 16, sat_fat_g: 2.5, sodium_mg: 270, fiber_g: 6, sugar_g: 0 },
+  },
+  {
+    id: "cfa_mac_n_cheese_med",
+    brand: "Chick-fil-A",
+    name: "Mac & Cheese",
+    portionLabel: "Medium",
+    approxGrams: 218,
+    perItem: { calories: 450, protein_g: 19, carbs_g: 31, fat_g: 26, sat_fat_g: 13, sodium_mg: 1320, cholesterol_mg: 60 },
+  },
+  // Sauces
+  {
+    id: "cfa_sauce_cfa",
+    brand: "Chick-fil-A",
+    name: "Chick-fil-A Sauce",
+    aliases: ["cfa sauce"],
+    portionLabel: "1 packet",
+    approxGrams: 28,
+    perItem: { calories: 140, protein_g: 0, carbs_g: 6, fat_g: 13, sat_fat_g: 2, sodium_mg: 170, sugar_g: 6, added_sugar_g: 5 },
+  },
+  {
+    id: "cfa_sauce_polynesian",
+    brand: "Chick-fil-A",
+    name: "Polynesian Sauce",
+    aliases: ["cfa polynesian"],
+    portionLabel: "1 packet",
+    approxGrams: 28,
+    perItem: { calories: 110, protein_g: 0, carbs_g: 14, fat_g: 6, sodium_mg: 220, sugar_g: 13, added_sugar_g: 13 },
+  },
+  {
+    id: "cfa_sauce_honey_mustard",
+    brand: "Chick-fil-A",
+    name: "Honey Mustard Sauce",
+    portionLabel: "1 packet",
+    approxGrams: 28,
+    perItem: { calories: 50, protein_g: 0, carbs_g: 12, fat_g: 0.5, sodium_mg: 180, sugar_g: 10, added_sugar_g: 10 },
+  },
+  {
+    id: "cfa_sauce_bbq",
+    brand: "Chick-fil-A",
+    name: "Barbeque Sauce",
+    aliases: ["cfa bbq"],
+    portionLabel: "1 packet",
+    approxGrams: 28,
+    perItem: { calories: 50, protein_g: 0, carbs_g: 11, fat_g: 0, sodium_mg: 260, sugar_g: 10, added_sugar_g: 10 },
+  },
+  {
+    id: "cfa_sauce_buffalo",
+    brand: "Chick-fil-A",
+    name: "Buffalo Sauce",
+    portionLabel: "1 packet",
+    approxGrams: 28,
+    perItem: { calories: 15, protein_g: 0, carbs_g: 0, fat_g: 1.5, sodium_mg: 460 },
+  },
+  {
+    id: "cfa_sauce_ranch",
+    brand: "Chick-fil-A",
+    name: "Garden Herb Ranch Sauce",
+    aliases: ["cfa ranch"],
+    portionLabel: "1 packet",
+    approxGrams: 28,
+    perItem: { calories: 140, protein_g: 0, carbs_g: 3, fat_g: 14, sat_fat_g: 2, sodium_mg: 280 },
+  },
+  {
+    id: "cfa_sauce_zesty_buffalo",
+    brand: "Chick-fil-A",
+    name: "Zesty Buffalo Sauce",
+    portionLabel: "1 packet",
+    approxGrams: 28,
+    perItem: { calories: 70, protein_g: 0, carbs_g: 1, fat_g: 7, sat_fat_g: 1, sodium_mg: 380 },
+  },
+  {
+    id: "cfa_sauce_sriracha",
+    brand: "Chick-fil-A",
+    name: "Sriracha Sauce",
+    portionLabel: "1 packet",
+    approxGrams: 28,
+    perItem: { calories: 25, protein_g: 0, carbs_g: 5, fat_g: 0.5, sodium_mg: 250, sugar_g: 4, added_sugar_g: 4 },
+  },
+
+  // ─── McDonald's ───────────────────────────────────────────────────
+  {
+    id: "mcd_big_mac",
+    brand: "McDonald's",
+    name: "Big Mac",
+    aliases: ["bigmac"],
+    portionLabel: "1 sandwich",
+    approxGrams: 219,
+    perItem: { calories: 590, protein_g: 25, carbs_g: 46, fat_g: 33, sat_fat_g: 11, sodium_mg: 1010, cholesterol_mg: 85, fiber_g: 3, sugar_g: 9 },
+  },
+  {
+    id: "mcd_mcdouble",
+    brand: "McDonald's",
+    name: "McDouble",
+    portionLabel: "1 sandwich",
+    approxGrams: 135,
+    perItem: { calories: 400, protein_g: 22, carbs_g: 33, fat_g: 20, sat_fat_g: 9, sodium_mg: 920, cholesterol_mg: 65, fiber_g: 2, sugar_g: 7 },
+  },
+  {
+    id: "mcd_quarter_pounder",
+    brand: "McDonald's",
+    name: "Quarter Pounder with Cheese",
+    portionLabel: "1 sandwich",
+    approxGrams: 199,
+    perItem: { calories: 520, protein_g: 30, carbs_g: 42, fat_g: 26, sat_fat_g: 12, sodium_mg: 1140, cholesterol_mg: 95, fiber_g: 3, sugar_g: 10 },
+  },
+  {
+    id: "mcd_mcchicken",
+    brand: "McDonald's",
+    name: "McChicken",
+    portionLabel: "1 sandwich",
+    approxGrams: 144,
+    perItem: { calories: 400, protein_g: 14, carbs_g: 39, fat_g: 21, sat_fat_g: 3.5, sodium_mg: 560, cholesterol_mg: 40, fiber_g: 2, sugar_g: 5 },
+  },
+  {
+    id: "mcd_mcnuggets_10",
+    brand: "McDonald's",
+    name: "Chicken McNuggets",
+    aliases: ["mcnuggets"],
+    portionLabel: "10 ct",
+    approxGrams: 162,
+    perItem: { calories: 410, protein_g: 23, carbs_g: 25, fat_g: 25, sat_fat_g: 4, sodium_mg: 800, cholesterol_mg: 60, sugar_g: 0 },
+  },
+  {
+    id: "mcd_mcnuggets_20",
+    brand: "McDonald's",
+    name: "Chicken McNuggets",
+    portionLabel: "20 ct",
+    approxGrams: 324,
+    perItem: { calories: 830, protein_g: 47, carbs_g: 50, fat_g: 50, sat_fat_g: 8, sodium_mg: 1610, cholesterol_mg: 120 },
+  },
+  {
+    id: "mcd_fries_med",
+    brand: "McDonald's",
+    name: "World Famous Fries",
+    aliases: ["mcdonalds fries"],
+    portionLabel: "Medium",
+    approxGrams: 117,
+    perItem: { calories: 320, protein_g: 4, carbs_g: 43, fat_g: 15, sat_fat_g: 2, sodium_mg: 260, fiber_g: 4, sugar_g: 0 },
+  },
+
+  // ─── Chipotle ─────────────────────────────────────────────────────
+  {
+    id: "chipotle_chicken_4oz",
+    brand: "Chipotle",
+    name: "Chicken",
+    aliases: ["chipotle chicken"],
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 180, protein_g: 32, carbs_g: 0, fat_g: 7, sat_fat_g: 2.5, sodium_mg: 310, cholesterol_mg: 130 },
+  },
+  {
+    id: "chipotle_steak_4oz",
+    brand: "Chipotle",
+    name: "Steak",
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 150, protein_g: 21, carbs_g: 1, fat_g: 6, sat_fat_g: 2, sodium_mg: 330, cholesterol_mg: 65 },
+  },
+  {
+    id: "chipotle_carnitas_4oz",
+    brand: "Chipotle",
+    name: "Carnitas",
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 210, protein_g: 23, carbs_g: 0, fat_g: 12, sat_fat_g: 4, sodium_mg: 450, cholesterol_mg: 80 },
+  },
+  {
+    id: "chipotle_barbacoa_4oz",
+    brand: "Chipotle",
+    name: "Barbacoa",
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 170, protein_g: 24, carbs_g: 1, fat_g: 7, sat_fat_g: 2.5, sodium_mg: 530, cholesterol_mg: 65 },
+  },
+  {
+    id: "chipotle_sofritas_4oz",
+    brand: "Chipotle",
+    name: "Sofritas",
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 150, protein_g: 8, carbs_g: 9, fat_g: 10, sat_fat_g: 1.5, sodium_mg: 555, fiber_g: 3 },
+  },
+  {
+    id: "chipotle_white_rice",
+    brand: "Chipotle",
+    name: "White Rice",
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 210, protein_g: 4, carbs_g: 40, fat_g: 4, sodium_mg: 350, fiber_g: 0 },
+  },
+  {
+    id: "chipotle_brown_rice",
+    brand: "Chipotle",
+    name: "Brown Rice",
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 210, protein_g: 4, carbs_g: 36, fat_g: 5, sodium_mg: 295, fiber_g: 4 },
+  },
+  {
+    id: "chipotle_black_beans",
+    brand: "Chipotle",
+    name: "Black Beans",
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 130, protein_g: 8, carbs_g: 22, fat_g: 1.5, sodium_mg: 210, fiber_g: 7 },
+  },
+  {
+    id: "chipotle_pinto_beans",
+    brand: "Chipotle",
+    name: "Pinto Beans",
+    portionLabel: "4 oz scoop",
+    approxGrams: 113,
+    perItem: { calories: 130, protein_g: 8, carbs_g: 22, fat_g: 1.5, sodium_mg: 250, fiber_g: 7 },
+  },
+  {
+    id: "chipotle_fajita_veg",
+    brand: "Chipotle",
+    name: "Fajita Vegetables",
+    portionLabel: "2.5 oz scoop",
+    approxGrams: 71,
+    perItem: { calories: 20, protein_g: 1, carbs_g: 4, fat_g: 0, sodium_mg: 150, fiber_g: 1 },
+  },
+  {
+    id: "chipotle_guac",
+    brand: "Chipotle",
+    name: "Guacamole",
+    portionLabel: "4 oz",
+    approxGrams: 113,
+    perItem: { calories: 230, protein_g: 3, carbs_g: 8, fat_g: 22, sat_fat_g: 3, sodium_mg: 370, fiber_g: 6 },
+  },
+  {
+    id: "chipotle_queso",
+    brand: "Chipotle",
+    name: "Queso Blanco",
+    portionLabel: "4 oz",
+    approxGrams: 113,
+    perItem: { calories: 240, protein_g: 8, carbs_g: 12, fat_g: 18, sat_fat_g: 9, sodium_mg: 600 },
+  },
+  {
+    id: "chipotle_cheese",
+    brand: "Chipotle",
+    name: "Cheese",
+    portionLabel: "1 oz",
+    approxGrams: 28,
+    perItem: { calories: 110, protein_g: 7, carbs_g: 0, fat_g: 8, sat_fat_g: 5, sodium_mg: 180, cholesterol_mg: 25 },
+  },
+  {
+    id: "chipotle_sour_cream",
+    brand: "Chipotle",
+    name: "Sour Cream",
+    portionLabel: "2 oz",
+    approxGrams: 57,
+    perItem: { calories: 110, protein_g: 2, carbs_g: 2, fat_g: 9, sat_fat_g: 7, sodium_mg: 30, cholesterol_mg: 35 },
+  },
+
+  // ─── Starbucks ────────────────────────────────────────────────────
+  {
+    id: "sbux_grande_latte_2",
+    brand: "Starbucks",
+    name: "Caffè Latte (2% milk)",
+    aliases: ["sbux latte"],
+    portionLabel: "Grande (16 oz)",
+    approxGrams: 473,
+    perItem: { calories: 190, protein_g: 13, carbs_g: 19, sugar_g: 18, fat_g: 7, sat_fat_g: 4, sodium_mg: 150, calcium_mg: 350 },
+  },
+  {
+    id: "sbux_grande_cappuccino",
+    brand: "Starbucks",
+    name: "Cappuccino (2% milk)",
+    portionLabel: "Grande (16 oz)",
+    approxGrams: 473,
+    perItem: { calories: 140, protein_g: 9, carbs_g: 14, sugar_g: 13, fat_g: 5, sat_fat_g: 3, sodium_mg: 110 },
+  },
+  {
+    id: "sbux_grande_caramel_macchiato",
+    brand: "Starbucks",
+    name: "Caramel Macchiato",
+    portionLabel: "Grande (16 oz)",
+    approxGrams: 473,
+    perItem: { calories: 250, protein_g: 10, carbs_g: 35, sugar_g: 33, added_sugar_g: 24, fat_g: 7, sat_fat_g: 4.5, sodium_mg: 150 },
+  },
+  {
+    id: "sbux_grande_psl",
+    brand: "Starbucks",
+    name: "Pumpkin Spice Latte (2% milk)",
+    aliases: ["psl"],
+    portionLabel: "Grande (16 oz)",
+    approxGrams: 473,
+    perItem: { calories: 390, protein_g: 14, carbs_g: 52, sugar_g: 50, added_sugar_g: 38, fat_g: 14, sat_fat_g: 8, sodium_mg: 230 },
+  },
+  {
+    id: "sbux_grande_cold_brew",
+    brand: "Starbucks",
+    name: "Cold Brew (black)",
+    portionLabel: "Grande (16 oz)",
+    approxGrams: 473,
+    perItem: { calories: 5, protein_g: 1, carbs_g: 0, fat_g: 0, sodium_mg: 10 },
+  },
+  {
+    id: "sbux_grande_iced_coffee",
+    brand: "Starbucks",
+    name: "Iced Coffee (unsweet)",
+    portionLabel: "Grande (16 oz)",
+    approxGrams: 473,
+    perItem: { calories: 5, protein_g: 1, carbs_g: 0, fat_g: 0 },
+  },
+];
+
+export function chainSeedToFood(seed: ChainSeed): Food {
+  return {
+    id: seed.id,
+    source: "chain",
+    name: seed.name,
+    brand: seed.brand,
+    aliases: seed.aliases,
+    servingSizeG: seed.approxGrams ?? 100,
+    servingLabel: seed.portionLabel,
+    servingOptions: [
+      { label: seed.portionLabel, grams: seed.approxGrams ?? 100 },
+    ],
+    nutrients: seed.perItem,
+    createdAt: 0,
+  };
+}

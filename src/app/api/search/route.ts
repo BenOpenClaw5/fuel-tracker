@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { curatedSearch } from "@/data";
 import { offSearch } from "@/lib/sources/off";
 import { usdaSearch } from "@/lib/sources/usda";
 import type { Food } from "@/lib/types";
@@ -10,7 +11,7 @@ function dedupe(list: Food[]): Food[] {
   const seenUpc = new Set<string>();
   const out: Food[] = [];
   for (const f of list) {
-    const key = `${(f.brand ?? "").toLowerCase()}::${f.name.toLowerCase()}`;
+    const key = `${(f.brand ?? "").toLowerCase()}::${f.name.toLowerCase()}::${f.servingLabel.toLowerCase()}`;
     if (seen.has(key)) continue;
     if (f.upc && seenUpc.has(f.upc)) continue;
     seen.add(key);
@@ -48,17 +49,20 @@ export async function GET(req: Request) {
   const isShortQuery = q.split(/\s+/).filter(Boolean).length <= 2;
   const errors: Array<{ source: string; message: string }> = [];
 
-  // Run all three in parallel; degrade gracefully on any failure.
+  // Curated is in-memory, instant, never fails. Run it first.
+  const curated = curatedSearch(q, 18);
+
+  // External sources in parallel; degrade gracefully on any failure.
   const [whole, branded, off] = await Promise.all([
-    usdaSearch(q, 14, "whole").catch((e: Error) => {
+    usdaSearch(q, 10, "whole").catch((e: Error) => {
       errors.push({ source: "usda-whole", message: e.message });
       return [] as Food[];
     }),
-    usdaSearch(q, 10, "branded").catch((e: Error) => {
+    usdaSearch(q, 8, "branded").catch((e: Error) => {
       errors.push({ source: "usda-branded", message: e.message });
       return [] as Food[];
     }),
-    offSearch(q, 1, 8).catch((e: Error) => {
+    offSearch(q, 1, 6).catch((e: Error) => {
       errors.push({ source: "off", message: e.message });
       return [] as Food[];
     }),
@@ -67,8 +71,14 @@ export async function GET(req: Request) {
   const sortBucket = (list: Food[]) =>
     list.slice().sort((a, b) => score(a, q, isShortQuery) - score(b, q, isShortQuery));
 
-  const merged = [...sortBucket(whole), ...sortBucket(branded), ...sortBucket(off)];
-  const body: SearchOk = { results: dedupe(merged).slice(0, 30) };
+  const merged = [
+    ...curated, // curated already self-sorted; trust it
+    ...sortBucket(whole),
+    ...sortBucket(branded),
+    ...sortBucket(off),
+  ];
+
+  const body: SearchOk = { results: dedupe(merged).slice(0, 40) };
   if (errors.length) body.errors = errors;
   return NextResponse.json(body);
 }

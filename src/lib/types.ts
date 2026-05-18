@@ -69,7 +69,24 @@ export interface Nutrients {
   omega6_g?: number | null;
 }
 
-export type FoodSource = "off" | "usda" | "user" | "chain" | "nutritionix";
+export type FoodSource =
+  | "off"
+  | "usda"
+  | "user"
+  | "chain"
+  | "nutritionix"
+  | "curated";
+
+/**
+ * A way to express how much of a food the user is eating.
+ *   { label: "3 oz (85 g)", grams: 85 }
+ *   { label: "1 chicken breast (174 g)", grams: 174 }
+ *   { label: "1 tbsp", grams: 21 }
+ */
+export interface ServingOption {
+  label: string;
+  grams: number;
+}
 
 export interface Food {
   id: string;
@@ -77,10 +94,20 @@ export interface Food {
   sourceId?: string; // external id (UPC, FDC ID)
   brand?: string;
   name: string;
-  servingSizeG: number; // grams equivalent of one serving
-  servingLabel: string; // e.g. "1 cup (240 g)"
+  /** Grams equivalent of one "default" serving — nutrients are per this amount. */
+  servingSizeG: number;
+  /** Human label for the default serving e.g. "1 cup (240 g)". */
+  servingLabel: string;
   servingsPerContainer?: number;
   upc?: string;
+  /**
+   * Optional alternate serving sizes. When present, the AddEntrySheet shows a
+   * dropdown to let the user pick by oz, gram, cup, "1 medium", etc. The
+   * first entry is treated as the default.
+   */
+  servingOptions?: ServingOption[];
+  /** Tags for filtering/aliases. */
+  aliases?: string[];
   nutrients: Nutrients;
   createdAt: number;
 }

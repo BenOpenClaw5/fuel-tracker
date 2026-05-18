@@ -338,4 +338,79 @@ test.describe("FUEL smoke", () => {
     const top4 = data.results.slice(0, 4);
     expect(top4.some((r) => !r.brand && /^chicken/i.test(r.name))).toBeTruthy();
   });
+
+  test("/api/search 'chicken breast' returns curated raw + grilled entries first", async ({ request }) => {
+    const res = await request.get("/api/search?q=chicken+breast");
+    expect(res.ok()).toBeTruthy();
+    const data = (await res.json()) as {
+      results: Array<{ source: string; name: string; brand?: string }>;
+    };
+    expect(data.results.length).toBeGreaterThan(2);
+    // The first two results should be curated chicken breast (raw + grilled)
+    const top2 = data.results.slice(0, 2);
+    expect(top2.every((r) => r.source === "curated")).toBeTruthy();
+    expect(
+      top2.some((r) => /^Chicken breast, (raw|grilled)/i.test(r.name)),
+    ).toBeTruthy();
+  });
+
+  test("/api/search 'honey' returns curated honey at the top", async ({ request }) => {
+    const res = await request.get("/api/search?q=honey");
+    expect(res.ok()).toBeTruthy();
+    const data = (await res.json()) as {
+      results: Array<{ source: string; name: string }>;
+    };
+    expect(data.results.length).toBeGreaterThan(0);
+    expect(data.results[0].source).toBe("curated");
+    expect(/honey/i.test(data.results[0].name)).toBeTruthy();
+  });
+
+  test("/api/search 'oats' returns curated rolled oats", async ({ request }) => {
+    const res = await request.get("/api/search?q=oats");
+    expect(res.ok()).toBeTruthy();
+    const data = (await res.json()) as {
+      results: Array<{ source: string; name: string }>;
+    };
+    const top3 = data.results.slice(0, 3);
+    expect(top3.some((r) => r.source === "curated" && /oats/i.test(r.name))).toBeTruthy();
+  });
+
+  test("/api/search 'cfa grilled nuggets' returns Chick-fil-A grilled nugget items", async ({
+    request,
+  }) => {
+    const res = await request.get("/api/search?q=cfa+grilled+nuggets");
+    expect(res.ok()).toBeTruthy();
+    const data = (await res.json()) as {
+      results: Array<{ source: string; name: string; brand?: string; servingLabel: string }>;
+    };
+    expect(data.results.length).toBeGreaterThan(0);
+    const cfaGrilled = data.results.filter(
+      (r) =>
+        r.brand === "Chick-fil-A" && /grilled nuggets/i.test(r.name),
+    );
+    expect(cfaGrilled.length).toBeGreaterThanOrEqual(3);
+    // 8/12/30 counts present
+    const counts = cfaGrilled.map((r) => r.servingLabel);
+    expect(counts).toEqual(expect.arrayContaining(["8 ct", "12 ct", "30 ct"]));
+  });
+
+  test("multi-serving picker: chicken breast offers grams and ounces", async ({ page }) => {
+    await seedOnboarded(page);
+    await page.goto("/add?meal=lunch");
+    await page.getByPlaceholder(/Search foods/i).fill("chicken breast");
+    await page.waitForResponse(
+      (r) => r.url().includes("/api/search?q=chicken") && r.status() === 200,
+      { timeout: 15000 },
+    );
+    // First result should be a curated chicken breast
+    const firstItem = page.locator("ul.divide-y > li").first();
+    await firstItem.click();
+    // Sheet shows the Serving size dropdown
+    const sizeSelect = page.getByRole("combobox", { name: /serving size/i });
+    await expect(sizeSelect).toBeVisible();
+    // Options should include both oz and grams entries
+    const options = await sizeSelect.locator("option").allTextContents();
+    expect(options.some((o) => /oz/i.test(o))).toBeTruthy();
+    expect(options.some((o) => /\bg\b/.test(o))).toBeTruthy();
+  });
 });
