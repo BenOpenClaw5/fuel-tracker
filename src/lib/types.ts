@@ -75,7 +75,8 @@ export type FoodSource =
   | "user"
   | "chain"
   | "nutritionix"
-  | "curated";
+  | "curated"
+  | "ai";
 
 /**
  * A way to express how much of a food the user is eating.

@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ChefHat, ScanBarcode, Plus, Search } from "lucide-react";
+import { ArrowLeft, ChefHat, ScanBarcode, Plus, Search, Sparkles } from "lucide-react";
 import { todayISODate } from "@/lib/dates";
 import type { Food, Meal, Recipe } from "@/lib/types";
 import { useFavorites, useFoods, useRecents, useRecipes } from "@/lib/hooks";
@@ -12,6 +12,7 @@ import { ServingSheetAnim } from "@/components/AddEntrySheet";
 import { toggleFavorite } from "@/lib/storage";
 import { sumNutrients, scaleNutrients } from "@/lib/nutrients";
 import { readCache, writeCache } from "@/lib/searchCache";
+import { curatedSearch } from "@/data";
 
 const MEAL_LABEL: Record<Meal, string> = {
   breakfast: "Breakfast",
@@ -99,13 +100,20 @@ function AddPageInner() {
       return;
     }
     setTab("search");
+
     const cached = readCache(q);
     if (cached) {
       setResults(cached);
       setLoading(false);
       return;
     }
+
+    // Curated catalog is bundled — match it instantly so results paint with
+    // zero latency while USDA/OFF fill in behind them.
+    const instant = curatedSearch(q, 18);
+    setResults(instant);
     setLoading(true);
+
     const ctrl = new AbortController();
     const timer = window.setTimeout(async () => {
       try {
@@ -114,10 +122,15 @@ function AddPageInner() {
         });
         const data = (await res.json()) as { results: Food[] };
         const list = data.results ?? [];
-        writeCache(q, list);
-        setResults(list);
+        if (list.length) {
+          writeCache(q, list);
+          setResults(list);
+        } else {
+          setResults(instant); // keep instant matches if external returns nothing
+        }
       } catch (e) {
-        if ((e as Error).name !== "AbortError") setResults([]);
+        // network/abort: keep the instant curated matches rather than blanking
+        if ((e as Error).name !== "AbortError") setResults(instant);
       } finally {
         setLoading(false);
       }
@@ -156,13 +169,22 @@ function AddPageInner() {
           <div className="text-center text-[13px] font-semibold">
             Add to <span className="text-[var(--accent)]">{MEAL_LABEL[meal]}</span>
           </div>
-          <Link
-            href={`/scan?meal=${meal}&date=${date}`}
-            aria-label="Scan barcode"
-            className="btn btn-ghost btn-sm !min-h-[36px] !px-2"
-          >
-            <ScanBarcode size={18} />
-          </Link>
+          <div className="flex items-center gap-1 justify-self-end">
+            <Link
+              href={`/ai?meal=${meal}&date=${date}`}
+              aria-label="Track with AI"
+              className="btn btn-ghost btn-sm !min-h-[36px] !px-2 text-[var(--accent)]"
+            >
+              <Sparkles size={18} />
+            </Link>
+            <Link
+              href={`/scan?meal=${meal}&date=${date}`}
+              aria-label="Scan barcode"
+              className="btn btn-ghost btn-sm !min-h-[36px] !px-2"
+            >
+              <ScanBarcode size={18} />
+            </Link>
+          </div>
         </div>
         <div className="px-3 pb-3">
           <div className="relative">
@@ -188,7 +210,7 @@ function AddPageInner() {
       </header>
 
       <div className="flex-1">
-        {loading ? (
+        {loading && tab === "search" && list.length === 0 ? (
           <div className="px-5 py-10 text-center text-[14px] text-[var(--muted)]">
             Searching…
           </div>
@@ -250,6 +272,12 @@ function AddPageInner() {
             </li>
           ))}
         </ul>
+
+        {loading && tab === "search" && list.length > 0 ? (
+          <div className="px-5 py-4 text-center text-[12px] text-[var(--muted)]">
+            Finding more…
+          </div>
+        ) : null}
       </div>
 
       <ServingSheetAnim

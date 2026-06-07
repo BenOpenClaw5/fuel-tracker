@@ -960,6 +960,442 @@ export const WHOLE_FOOD_SEEDS: WholeFoodSeed[] = [
       { label: "750 ml bottle", grams: 750 },
     ],
   },
+
+  // ── Expanded proteins ─────────────────────────────────────────────
+  {
+    id: "wf_ground_turkey_93_cooked",
+    name: "Ground turkey, 93/7, cooked",
+    aliases: ["ground turkey", "lean ground turkey"],
+    category: "protein",
+    per100g: { calories: 176, protein_g: 27, carbs_g: 0, fat_g: 7, sat_fat_g: 2, sodium_mg: 90, cholesterol_mg: 100 },
+    servings: [
+      { label: "4 oz cooked (113 g)", grams: 113 },
+      { label: "3 oz cooked (85 g)", grams: 85 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_turkey_breast_deli",
+    name: "Turkey breast, deli sliced",
+    aliases: ["deli turkey", "turkey lunch meat", "sliced turkey"],
+    category: "protein",
+    per100g: { calories: 104, protein_g: 17, carbs_g: 4, fat_g: 1.5, sodium_mg: 1010, cholesterol_mg: 40 },
+    servings: [
+      { label: "2 oz (56 g)", grams: 56 },
+      { label: "1 slice (28 g)", grams: 28 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_pork_chop_cooked",
+    name: "Pork chop, cooked, lean",
+    aliases: ["pork chop", "pork loin"],
+    category: "protein",
+    per100g: { calories: 196, protein_g: 28, carbs_g: 0, fat_g: 9, sat_fat_g: 3, sodium_mg: 60, cholesterol_mg: 80 },
+    servings: [
+      { label: "1 chop (130 g)", grams: 130 },
+      { label: "4 oz (113 g)", grams: 113 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_pork_tenderloin_cooked",
+    name: "Pork tenderloin, cooked",
+    aliases: ["pork tenderloin"],
+    category: "protein",
+    per100g: { calories: 143, protein_g: 26, carbs_g: 0, fat_g: 3.5, sat_fat_g: 1.2, sodium_mg: 55, cholesterol_mg: 80 },
+    servings: [
+      { label: "4 oz (113 g)", grams: 113 },
+      { label: "3 oz (85 g)", grams: 85 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_ground_beef_85_cooked",
+    name: "Ground beef, 85/15, cooked",
+    aliases: ["cooked ground beef", "hamburger meat cooked"],
+    category: "protein",
+    per100g: { calories: 250, protein_g: 26, carbs_g: 0, fat_g: 16, sat_fat_g: 6, sodium_mg: 75, cholesterol_mg: 85 },
+    servings: [
+      { label: "4 oz cooked (113 g)", grams: 113 },
+      { label: "3 oz cooked (85 g)", grams: 85 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_tilapia_cooked",
+    name: "Tilapia, cooked",
+    aliases: ["tilapia"],
+    category: "protein",
+    per100g: { calories: 128, protein_g: 26, carbs_g: 0, fat_g: 2.7, sat_fat_g: 0.9, sodium_mg: 56, cholesterol_mg: 57 },
+    servings: [
+      { label: "1 fillet (113 g)", grams: 113 },
+      { label: "4 oz (113 g)", grams: 113 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_cod_cooked",
+    name: "Cod, cooked",
+    aliases: ["cod fish"],
+    category: "protein",
+    per100g: { calories: 105, protein_g: 23, carbs_g: 0, fat_g: 0.9, sodium_mg: 78, cholesterol_mg: 55 },
+    servings: [
+      { label: "1 fillet (115 g)", grams: 115 },
+      { label: "4 oz (113 g)", grams: 113 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_steak_ribeye_cooked",
+    name: "Ribeye steak, cooked",
+    aliases: ["ribeye", "rib eye steak"],
+    category: "protein",
+    per100g: { calories: 291, protein_g: 24, carbs_g: 0, fat_g: 21, sat_fat_g: 9, sodium_mg: 60, cholesterol_mg: 85 },
+    servings: [
+      { label: "8 oz (227 g)", grams: 227 },
+      { label: "4 oz (113 g)", grams: 113 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_sausage_link_cooked",
+    name: "Pork sausage link, cooked",
+    aliases: ["breakfast sausage", "sausage"],
+    category: "protein",
+    per100g: { calories: 301, protein_g: 17, carbs_g: 1, fat_g: 25, sat_fat_g: 8, sodium_mg: 740, cholesterol_mg: 70 },
+    servings: [
+      { label: "1 link (27 g)", grams: 27 },
+      { label: "2 links (54 g)", grams: 54 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+
+  // ── Expanded vegetables ───────────────────────────────────────────
+  {
+    id: "wf_asparagus_cooked",
+    name: "Asparagus, cooked",
+    aliases: ["asparagus"],
+    category: "veg",
+    per100g: { calories: 22, protein_g: 2.4, carbs_g: 4, fat_g: 0.2, fiber_g: 2, sodium_mg: 14, potassium_mg: 224 },
+    servings: [
+      { label: "1 cup (180 g)", grams: 180 },
+      { label: "5 spears (90 g)", grams: 90 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_green_beans_cooked",
+    name: "Green beans, cooked",
+    aliases: ["green beans", "string beans"],
+    category: "veg",
+    per100g: { calories: 35, protein_g: 1.9, carbs_g: 8, fat_g: 0.2, fiber_g: 3.4, sodium_mg: 1, potassium_mg: 146 },
+    servings: [
+      { label: "1 cup (125 g)", grams: 125 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_mushrooms_raw",
+    name: "Mushrooms, white, raw",
+    aliases: ["mushrooms"],
+    category: "veg",
+    per100g: { calories: 22, protein_g: 3.1, carbs_g: 3.3, fat_g: 0.3, fiber_g: 1, sodium_mg: 5, potassium_mg: 318 },
+    servings: [
+      { label: "1 cup sliced (70 g)", grams: 70 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_zucchini_raw",
+    name: "Zucchini, raw",
+    aliases: ["zucchini", "courgette"],
+    category: "veg",
+    per100g: { calories: 17, protein_g: 1.2, carbs_g: 3.1, fat_g: 0.3, fiber_g: 1, sodium_mg: 8, potassium_mg: 261 },
+    servings: [
+      { label: "1 medium (196 g)", grams: 196 },
+      { label: "1 cup sliced (113 g)", grams: 113 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_corn_cooked",
+    name: "Corn, sweet, cooked",
+    aliases: ["corn", "sweet corn"],
+    category: "veg",
+    per100g: { calories: 96, protein_g: 3.4, carbs_g: 21, fat_g: 1.5, fiber_g: 2.4, sugar_g: 4.5, sodium_mg: 1, potassium_mg: 218 },
+    servings: [
+      { label: "1 ear (90 g)", grams: 90 },
+      { label: "1 cup (165 g)", grams: 165 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_peas_cooked",
+    name: "Green peas, cooked",
+    aliases: ["peas", "green peas"],
+    category: "veg",
+    per100g: { calories: 84, protein_g: 5.4, carbs_g: 16, fat_g: 0.2, fiber_g: 5.5, sugar_g: 6, sodium_mg: 2, potassium_mg: 271 },
+    servings: [
+      { label: "1 cup (160 g)", grams: 160 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_cauliflower_raw",
+    name: "Cauliflower, raw",
+    aliases: ["cauliflower"],
+    category: "veg",
+    per100g: { calories: 25, protein_g: 1.9, carbs_g: 5, fat_g: 0.3, fiber_g: 2, sodium_mg: 30, potassium_mg: 299 },
+    servings: [
+      { label: "1 cup (107 g)", grams: 107 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_brussels_sprouts_cooked",
+    name: "Brussels sprouts, cooked",
+    aliases: ["brussels sprouts"],
+    category: "veg",
+    per100g: { calories: 36, protein_g: 2.6, carbs_g: 7, fat_g: 0.5, fiber_g: 2.6, sodium_mg: 21, potassium_mg: 317 },
+    servings: [
+      { label: "1 cup (156 g)", grams: 156 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+
+  // ── Expanded fruit ────────────────────────────────────────────────
+  {
+    id: "wf_raspberries",
+    name: "Raspberries",
+    aliases: ["raspberries"],
+    category: "fruit",
+    per100g: { calories: 52, protein_g: 1.2, carbs_g: 12, fat_g: 0.7, fiber_g: 6.5, sugar_g: 4.4, vit_c_mg: 26 },
+    servings: [
+      { label: "1 cup (123 g)", grams: 123 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_blackberries",
+    name: "Blackberries",
+    aliases: ["blackberries"],
+    category: "fruit",
+    per100g: { calories: 43, protein_g: 1.4, carbs_g: 10, fat_g: 0.5, fiber_g: 5.3, sugar_g: 4.9, vit_c_mg: 21 },
+    servings: [
+      { label: "1 cup (144 g)", grams: 144 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_peach",
+    name: "Peach",
+    aliases: ["peach"],
+    category: "fruit",
+    per100g: { calories: 39, protein_g: 0.9, carbs_g: 10, fat_g: 0.3, fiber_g: 1.5, sugar_g: 8.4, vit_c_mg: 7 },
+    servings: [
+      { label: "1 medium (150 g)", grams: 150 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_pear",
+    name: "Pear",
+    aliases: ["pear"],
+    category: "fruit",
+    per100g: { calories: 57, protein_g: 0.4, carbs_g: 15, fat_g: 0.1, fiber_g: 3.1, sugar_g: 10, vit_c_mg: 4 },
+    servings: [
+      { label: "1 medium (178 g)", grams: 178 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_cherries",
+    name: "Cherries, sweet",
+    aliases: ["cherries"],
+    category: "fruit",
+    per100g: { calories: 63, protein_g: 1.1, carbs_g: 16, fat_g: 0.2, fiber_g: 2.1, sugar_g: 13, potassium_mg: 222 },
+    servings: [
+      { label: "1 cup (154 g)", grams: 154 },
+      { label: "10 cherries (68 g)", grams: 68 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_kiwi",
+    name: "Kiwi",
+    aliases: ["kiwi", "kiwifruit"],
+    category: "fruit",
+    per100g: { calories: 61, protein_g: 1.1, carbs_g: 15, fat_g: 0.5, fiber_g: 3, sugar_g: 9, vit_c_mg: 93 },
+    servings: [
+      { label: "1 medium (69 g)", grams: 69 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_cantaloupe",
+    name: "Cantaloupe",
+    aliases: ["cantaloupe", "melon"],
+    category: "fruit",
+    per100g: { calories: 34, protein_g: 0.8, carbs_g: 8, fat_g: 0.2, fiber_g: 0.9, sugar_g: 7.9, vit_c_mg: 37 },
+    servings: [
+      { label: "1 cup cubed (160 g)", grams: 160 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+
+  // ── Expanded legumes / nuts / seeds ───────────────────────────────
+  {
+    id: "wf_pinto_beans_cooked",
+    name: "Pinto beans, cooked",
+    aliases: ["pinto beans"],
+    category: "legume",
+    per100g: { calories: 143, protein_g: 9, carbs_g: 26, fat_g: 0.7, fiber_g: 9, sodium_mg: 1, potassium_mg: 436 },
+    servings: [
+      { label: "1/2 cup (86 g)", grams: 86 },
+      { label: "1 cup (171 g)", grams: 171 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_kidney_beans_canned",
+    name: "Kidney beans, canned",
+    aliases: ["kidney beans", "red beans"],
+    category: "legume",
+    per100g: { calories: 84, protein_g: 5.5, carbs_g: 15, fat_g: 0.3, fiber_g: 6, sodium_mg: 230, potassium_mg: 237 },
+    servings: [
+      { label: "1/2 cup (128 g)", grams: 128 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_pecans",
+    name: "Pecans",
+    aliases: ["pecans"],
+    category: "nut",
+    per100g: { calories: 691, protein_g: 9, carbs_g: 14, fat_g: 72, sat_fat_g: 6, fiber_g: 10, sodium_mg: 0 },
+    servings: [
+      { label: "1 oz (28 g)", grams: 28 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_pistachios",
+    name: "Pistachios",
+    aliases: ["pistachios"],
+    category: "nut",
+    per100g: { calories: 560, protein_g: 20, carbs_g: 28, fat_g: 45, sat_fat_g: 5.5, fiber_g: 10, sodium_mg: 1 },
+    servings: [
+      { label: "1 oz (28 g)", grams: 28 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_chia_seeds",
+    name: "Chia seeds",
+    aliases: ["chia seeds", "chia"],
+    category: "nut",
+    per100g: { calories: 486, protein_g: 17, carbs_g: 42, fat_g: 31, sat_fat_g: 3.3, fiber_g: 34, sodium_mg: 16, omega3_g: 17.8 },
+    servings: [
+      { label: "2 tbsp (28 g)", grams: 28 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_peanuts",
+    name: "Peanuts, roasted",
+    aliases: ["peanuts"],
+    category: "nut",
+    per100g: { calories: 587, protein_g: 24, carbs_g: 21, fat_g: 50, sat_fat_g: 7, fiber_g: 8, sodium_mg: 6 },
+    servings: [
+      { label: "1 oz (28 g)", grams: 28 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+
+  // ── Expanded dairy ────────────────────────────────────────────────
+  {
+    id: "wf_string_cheese_mozzarella",
+    name: "String cheese, mozzarella",
+    aliases: ["string cheese", "mozzarella stick"],
+    category: "dairy",
+    per100g: { calories: 300, protein_g: 24, carbs_g: 3.6, fat_g: 21, sat_fat_g: 13, sodium_mg: 750, calcium_mg: 700 },
+    servings: [
+      { label: "1 stick (28 g)", grams: 28 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_feta",
+    name: "Feta cheese",
+    aliases: ["feta"],
+    category: "dairy",
+    per100g: { calories: 264, protein_g: 14, carbs_g: 4, fat_g: 21, sat_fat_g: 15, sodium_mg: 1116, calcium_mg: 493 },
+    servings: [
+      { label: "1 oz (28 g)", grams: 28 },
+      { label: "1/4 cup crumbled (38 g)", grams: 38 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_cream_cheese",
+    name: "Cream cheese",
+    aliases: ["cream cheese"],
+    category: "dairy",
+    per100g: { calories: 342, protein_g: 6, carbs_g: 4, fat_g: 34, sat_fat_g: 19, sodium_mg: 321, cholesterol_mg: 101 },
+    servings: [
+      { label: "1 tbsp (15 g)", grams: 15 },
+      { label: "1 oz (28 g)", grams: 28 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_sour_cream",
+    name: "Sour cream",
+    aliases: ["sour cream"],
+    category: "dairy",
+    per100g: { calories: 198, protein_g: 2.4, carbs_g: 4.6, fat_g: 19, sat_fat_g: 11, sodium_mg: 50, cholesterol_mg: 52 },
+    servings: [
+      { label: "2 tbsp (30 g)", grams: 30 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_heavy_cream",
+    name: "Heavy cream",
+    aliases: ["heavy cream", "heavy whipping cream"],
+    category: "dairy",
+    per100g: { calories: 340, protein_g: 2.8, carbs_g: 2.8, fat_g: 36, sat_fat_g: 23, sodium_mg: 27, cholesterol_mg: 113 },
+    servings: [
+      { label: "1 tbsp (15 g)", grams: 15 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+
+  // ── Misc ──────────────────────────────────────────────────────────
+  {
+    id: "wf_popcorn_air_popped",
+    name: "Popcorn, air-popped",
+    aliases: ["popcorn"],
+    category: "grain",
+    per100g: { calories: 387, protein_g: 13, carbs_g: 78, fat_g: 4.5, fiber_g: 15, sodium_mg: 8 },
+    servings: [
+      { label: "3 cups (24 g)", grams: 24 },
+      { label: "1 cup (8 g)", grams: 8 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
+  {
+    id: "wf_dark_chocolate",
+    name: "Dark chocolate (70-85%)",
+    aliases: ["dark chocolate"],
+    category: "sweetener",
+    per100g: { calories: 598, protein_g: 7.8, carbs_g: 46, fat_g: 43, sat_fat_g: 24, fiber_g: 11, sugar_g: 24, sodium_mg: 20 },
+    servings: [
+      { label: "1 oz (28 g)", grams: 28 },
+      { label: "100 g", grams: 100 },
+    ],
+  },
 ];
 
 // silence unused warning

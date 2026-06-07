@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { offGetByBarcode } from "@/lib/sources/off";
 import { usdaSearch } from "@/lib/sources/usda";
+import { curatedByUpc } from "@/data";
 import type { Food } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -15,6 +16,10 @@ export async function GET(_req: Request, ctx: RouteContext) {
     return NextResponse.json({ error: "Invalid barcode" }, { status: 400 });
   }
   try {
+    // Curated store-brand UPCs resolve instantly and never depend on OFF.
+    const curated = curatedByUpc(upc);
+    if (curated) return NextResponse.json({ food: curated, source: "curated" });
+
     const off = await offGetByBarcode(upc).catch(() => null);
     if (off) return NextResponse.json({ food: off, source: "off" });
     // Fallback: USDA branded search by UPC
