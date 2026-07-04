@@ -52,24 +52,39 @@ function ScanPageInner() {
     }
     setError(null);
     try {
-      const cached = findFoodByUpc(upc);
-      if (cached) {
-        setFood(cached);
-        return;
+      let resolved: Food | null = findFoodByUpc(upc);
+      if (!resolved) {
+        const res = await fetch(`/api/barcode/${encodeURIComponent(upc)}`);
+        if (!res.ok) {
+          setError(`No match for ${upc}.`);
+          showToast(`Barcode ${upc} not found`, "error");
+          return;
+        }
+        const data = (await res.json()) as { food: Food | null };
+        resolved = data.food;
       }
-      const res = await fetch(`/api/barcode/${encodeURIComponent(upc)}`);
-      if (!res.ok) {
+      if (!resolved) {
         setError(`No match for ${upc}.`);
-        showToast(`Barcode ${upc} not found`, "error");
         return;
       }
-      const data = (await res.json()) as { food: Food };
-      if (!data.food) {
-        setError(`No match for ${upc}.`);
+      // Product found but the source has no nutrition data — send the user to
+      // manual entry (prefilled + barcode remembered) instead of a zero sheet.
+      if (resolved.nutrients.calories == null) {
+        const qp = new URLSearchParams({
+          name: resolved.name,
+          upc: resolved.upc ?? upc,
+          serving: resolved.servingLabel,
+          sg: String(resolved.servingSizeG),
+          meal,
+          date,
+        });
+        if (resolved.brand) qp.set("brand", resolved.brand);
+        showToast("No nutrition data — add it manually", "error");
+        router.push(`/foods/new?${qp.toString()}`);
         return;
       }
-      upsertFood(data.food);
-      setFood(data.food);
+      upsertFood(resolved);
+      setFood(resolved);
     } catch {
       setError("Lookup failed.");
     } finally {
@@ -80,7 +95,7 @@ function ScanPageInner() {
         lastDetectedRef.current = null;
       }, 1500);
     }
-  }, []);
+  }, [meal, date, router]);
 
   useEffect(() => {
     const hints = new Map<DecodeHintType, unknown>();
@@ -102,8 +117,11 @@ function ScanPageInner() {
     const start = async () => {
       if (!videoRef.current) return;
       try {
-        const controls = await reader.decodeFromVideoDevice(
-          undefined,
+        // Request the rear camera directly via constraints. This makes ONE
+        // getUserMedia call (vs. decodeFromVideoDevice, which first enumerates
+        // devices — a second camera access that can double the iOS prompt).
+        const controls = await reader.decodeFromConstraints(
+          { video: { facingMode: { ideal: "environment" } } },
           videoRef.current,
           (result) => {
             if (stopped) return;

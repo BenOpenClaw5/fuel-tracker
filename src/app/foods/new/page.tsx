@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { ArrowLeft, ChevronDown, ChevronUp, Save } from "lucide-react";
 import { newId } from "@/lib/dates";
 import { upsertFood } from "@/lib/storage";
@@ -28,8 +28,29 @@ function emptyForm(): Form {
 }
 
 export default function NewFoodPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewFoodPageInner />
+    </Suspense>
+  );
+}
+
+function NewFoodPageInner() {
   const router = useRouter();
-  const [form, setForm] = useState<Form>(emptyForm());
+  const params = useSearchParams();
+  const upc = params?.get("upc") || undefined;
+  // Prefill when arriving from a barcode scan that had no nutrition data.
+  const [form, setForm] = useState<Form>(() => {
+    const name = params?.get("name");
+    if (!name) return emptyForm();
+    return {
+      name,
+      brand: params?.get("brand") ?? "",
+      servingLabel: params?.get("serving") ?? "1 serving",
+      servingSizeG: params?.get("sg") ?? "100",
+      values: {},
+    };
+  });
   const [showMicros, setShowMicros] = useState(false);
 
   const setVal = (key: string, v: string) =>
@@ -70,6 +91,7 @@ export default function NewFoodPage() {
       brand: form.brand.trim() || undefined,
       servingLabel: form.servingLabel.trim() || "1 serving",
       servingSizeG: Math.max(1, Number(form.servingSizeG) || 100),
+      upc,
       nutrients,
       createdAt: Date.now(),
     };

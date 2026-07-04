@@ -112,6 +112,30 @@ test.describe("AI tracking + expanded data", () => {
     ).toBeVisible({ timeout: 4000 });
   });
 
+  test("custom-food page prefills from a barcode scan + remembers the UPC", async ({ page }) => {
+    await seedOnboarded(page);
+    await page.goto(
+      "/foods/new?name=Buncha%20Crunch&brand=Nestle&upc=009800200016&serving=1%20box%20(44%20g)&sg=44&meal=snacks",
+    );
+    // Name is prefilled from the scan
+    await expect(page.getByPlaceholder(/Grandma/i)).toHaveValue("Buncha Crunch");
+    // Fill required macros the source was missing
+    const macros = page.locator("section.card").nth(1).locator("input[type='number']");
+    await macros.nth(0).fill("230");
+    await macros.nth(1).fill("2");
+    await macros.nth(2).fill("30");
+    await macros.nth(3).fill("11");
+    await page.getByRole("button", { name: /^Save$/ }).click();
+    // Save writes synchronously then navigates back; re-land on a real page on
+    // the same origin to read localStorage.
+    await page.waitForTimeout(300);
+    await page.goto("/");
+    const stored = await page.evaluate(() => localStorage.getItem("fuel.foods.v1"));
+    expect(stored).toContain("Buncha Crunch");
+    // UPC is stored so a future scan resolves locally (no more null sheet)
+    expect(stored).toContain("009800200016");
+  });
+
   test("/api/search relevance: query tokens appear in result names", async ({ request }) => {
     const res = await request.get("/api/search?q=pork+ribs");
     expect(res.ok()).toBeTruthy();

@@ -53,19 +53,33 @@ interface OffProduct {
   image_thumb_url?: string;
 }
 
+/**
+ * Resolve one nutrient to a per-serving amount.
+ *   - When the product declares a serving size, prefer the exact `_serving`
+ *     value, else scale the `_100g` value to that serving.
+ *   - When the serving size is UNKNOWN, we default the serving to 100 g and use
+ *     the `_100g` value directly. (The old code returned null here, which is why
+ *     scanned items like candy showed all dashes despite OFF having per-100g
+ *     data.)
+ */
 function pickServing<K extends keyof OffNutriments>(
   n: OffNutriments | undefined,
   servingKey: K,
   per100Key: K,
-  servingG: number | undefined,
+  servingG: number,
+  servingKnown: boolean,
 ): number | null {
   if (!n) return null;
   const direct = n[servingKey];
-  if (typeof direct === "number" && Number.isFinite(direct)) return direct;
   const per100 = n[per100Key];
-  if (typeof per100 === "number" && Number.isFinite(per100) && servingG && servingG > 0) {
+  if (servingKnown && typeof direct === "number" && Number.isFinite(direct)) {
+    return direct;
+  }
+  if (typeof per100 === "number" && Number.isFinite(per100)) {
     return (per100 * servingG) / 100;
   }
+  // last resort — an isolated `_serving` value with no serving size known
+  if (typeof direct === "number" && Number.isFinite(direct)) return direct;
   return null;
 }
 
@@ -73,55 +87,57 @@ function offToFood(p: OffProduct): Food | null {
   if (!p.code) return null;
   const name = p.product_name_en || p.product_name || "Unnamed product";
   const brand = (p.brands || "").split(",")[0]?.trim() || undefined;
-  const servingG = p.serving_quantity ? Number(p.serving_quantity) : 0;
-  const servingLabel = p.serving_size || (servingG ? `${servingG} g` : "1 serving");
+
+  const parsedServing = p.serving_quantity ? Number(p.serving_quantity) : 0;
+  const servingKnown = Number.isFinite(parsedServing) && parsedServing > 0;
+  // Unknown serving → treat nutrients as per 100 g so we still surface values.
+  const servingG = servingKnown ? parsedServing : 100;
+  const servingLabel = servingKnown ? p.serving_size || `${servingG} g` : "100 g";
 
   const n = p.nutriments;
+  const pick = <K extends keyof OffNutriments>(sKey: K, hKey: K) =>
+    pickServing(n, sKey, hKey, servingG, servingKnown);
+
   // Convert OFF sodium (g) to mg if present in grams
   let sodium_mg: number | null = null;
-  const sodiumS = pickServing(n, "sodium_serving", "sodium_100g", servingG);
+  const sodiumS = pick("sodium_serving", "sodium_100g");
   if (sodiumS != null) sodium_mg = Math.round(sodiumS * 1000);
 
   let cholesterol_mg: number | null = null;
-  const cholS = pickServing(n, "cholesterol_serving", "cholesterol_100g", servingG);
+  const cholS = pick("cholesterol_serving", "cholesterol_100g");
   if (cholS != null) cholesterol_mg = Math.round(cholS * 1000);
 
   // Vitamin A in OFF is reported in µg (RAE) at vitamin-a_serving
-  const vitA = pickServing(n, "vitamin-a_serving", "vitamin-a_100g", servingG);
-  const vitC = pickServing(n, "vitamin-c_serving", "vitamin-c_100g", servingG);
-  const vitD = pickServing(n, "vitamin-d_serving", "vitamin-d_100g", servingG);
+  const vitA = pick("vitamin-a_serving", "vitamin-a_100g");
+  const vitC = pick("vitamin-c_serving", "vitamin-c_100g");
+  const vitD = pick("vitamin-d_serving", "vitamin-d_100g");
 
   const nutrients: Nutrients = {
-    calories:
-      pickServing(n, "energy-kcal_serving", "energy-kcal_100g", servingG) ?? null,
-    protein_g: pickServing(n, "proteins_serving", "proteins_100g", servingG),
-    carbs_g: pickServing(n, "carbohydrates_serving", "carbohydrates_100g", servingG),
-    fat_g: pickServing(n, "fat_serving", "fat_100g", servingG),
-    fiber_g: pickServing(n, "fiber_serving", "fiber_100g", servingG),
-    sugar_g: pickServing(n, "sugars_serving", "sugars_100g", servingG),
-    sat_fat_g: pickServing(n, "saturated-fat_serving", "saturated-fat_100g", servingG),
-    trans_fat_g: pickServing(n, "trans-fat_serving", "trans-fat_100g", servingG),
+    calories: pick("energy-kcal_serving", "energy-kcal_100g") ?? null,
+    protein_g: pick("proteins_serving", "proteins_100g"),
+    carbs_g: pick("carbohydrates_serving", "carbohydrates_100g"),
+    fat_g: pick("fat_serving", "fat_100g"),
+    fiber_g: pick("fiber_serving", "fiber_100g"),
+    sugar_g: pick("sugars_serving", "sugars_100g"),
+    sat_fat_g: pick("saturated-fat_serving", "saturated-fat_100g"),
+    trans_fat_g: pick("trans-fat_serving", "trans-fat_100g"),
     cholesterol_mg,
     sodium_mg,
-    potassium_mg: roundOrNull(
-      maybeMg(pickServing(n, "potassium_serving", "potassium_100g", servingG)),
-    ),
-    calcium_mg: roundOrNull(
-      maybeMg(pickServing(n, "calcium_serving", "calcium_100g", servingG)),
-    ),
-    iron_mg: roundOrNull(
-      maybeMg(pickServing(n, "iron_serving", "iron_100g", servingG)),
-    ),
-    magnesium_mg: roundOrNull(
-      maybeMg(pickServing(n, "magnesium_serving", "magnesium_100g", servingG)),
-    ),
-    zinc_mg: roundOrNull(
-      maybeMg(pickServing(n, "zinc_serving", "zinc_100g", servingG)),
-    ),
+    potassium_mg: roundOrNull(maybeMg(pick("potassium_serving", "potassium_100g"))),
+    calcium_mg: roundOrNull(maybeMg(pick("calcium_serving", "calcium_100g"))),
+    iron_mg: roundOrNull(maybeMg(pick("iron_serving", "iron_100g"))),
+    magnesium_mg: roundOrNull(maybeMg(pick("magnesium_serving", "magnesium_100g"))),
+    zinc_mg: roundOrNull(maybeMg(pick("zinc_serving", "zinc_100g"))),
     vit_a_mcg: vitA != null ? Math.round(vitA * 1_000_000) / 1000 : null, // OFF returns g
     vit_c_mg: vitC != null ? Math.round(vitC * 1000) : null,
     vit_d_mcg: vitD != null ? Math.round(vitD * 1_000_000) / 1000 : null,
   };
+
+  // Round the macros for display sanity (per-100g values are often long decimals).
+  for (const k of ["calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "sugar_g", "sat_fat_g"] as const) {
+    const v = nutrients[k];
+    if (typeof v === "number") nutrients[k] = Math.round(v * 10) / 10;
+  }
 
   return {
     id: `off_${p.code}`,
@@ -130,7 +146,7 @@ function offToFood(p: OffProduct): Food | null {
     upc: p.code,
     brand,
     name,
-    servingSizeG: servingG || 100,
+    servingSizeG: servingG,
     servingLabel,
     nutrients,
     createdAt: Date.now(),
