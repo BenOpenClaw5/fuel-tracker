@@ -2,7 +2,7 @@
 
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
-import { ArrowLeft, Check, ScanBarcode, Search } from "lucide-react";
+import { ArrowLeft, Check, ScanBarcode, ScanText, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -230,8 +230,25 @@ function ScanPageInner() {
                 : "Align a UPC inside the frame"}
           </div>
           {error ? (
-            <div className="rounded-md bg-red-600/90 text-white text-[12px] px-3 py-1.5">
-              {error}
+            <div className="w-full max-w-md flex flex-col items-center gap-2">
+              <div className="rounded-md bg-red-600/90 text-white text-[12px] px-3 py-1.5">
+                {error}
+              </div>
+              {/* No barcode match → read the label with AI (works for anything) */}
+              <div className="flex gap-2 w-full">
+                <Link
+                  href={`/ai?meal=${meal}&date=${date}&mode=label`}
+                  className="btn flex-1 !bg-white !text-black !border-white"
+                >
+                  <ScanText size={15} /> Scan the label
+                </Link>
+                <Link
+                  href={`/foods/new?meal=${meal}&date=${date}`}
+                  className="btn flex-1 !bg-white/10 !text-white !border-white/30"
+                >
+                  Add manually
+                </Link>
+              </div>
             </div>
           ) : null}
           <form

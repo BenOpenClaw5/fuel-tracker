@@ -96,8 +96,11 @@ function AiPageInner() {
   const params = useSearchParams();
   const date = params?.get("date") ?? todayISODate();
   const meal = (params?.get("meal") as Meal | null) ?? "snacks";
+  const initialMode = params?.get("mode");
 
-  const [mode, setMode] = useState<Mode>("photo");
+  const [mode, setMode] = useState<Mode>(
+    initialMode === "label" || initialMode === "describe" ? initialMode : "photo",
+  );
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

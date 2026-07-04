@@ -51,6 +51,15 @@ test.describe("AI tracking + expanded data", () => {
     await expect(page.getByRole("button", { name: /estimate/i })).toBeVisible();
   });
 
+  test("scan-fail fallback: /ai?mode=label opens straight to label capture", async ({ page }) => {
+    await seedOnboarded(page);
+    await page.goto("/ai?meal=snacks&mode=label");
+    await expect(page.getByText(/Nutrition label/i)).toBeVisible();
+    await expect(
+      page.getByText(/Photograph the Nutrition Facts panel/i),
+    ).toBeVisible();
+  });
+
   test("/api/ai-food is wired and returns structured JSON", async ({ request }) => {
     // With no ANTHROPIC_API_KEY it returns 503 {error}; with a key it returns {food}.
     // Either way the route must respond with JSON, never crash.
